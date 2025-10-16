@@ -1,17 +1,12 @@
 import {
   getAuth,
-  signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Link } from "react-router";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import type { Route } from "./+types/login";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import type { Client } from "~/types/client.types";
-import type { Professional } from "~/types/professional.types";
 
 export function meta({}: Route.MetaArgs) {
   return [

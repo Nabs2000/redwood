@@ -1,10 +1,9 @@
 import type { Route } from "./+types/register";
 
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { useState } from "react";
-import { Link } from "react-router";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
-import { Form } from "react-router";
+import { Form, Link } from "react-router";
 import { useNavigate } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
@@ -22,8 +21,6 @@ export default function Register() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [company, setCompany] = useState("");
   const [selectedOption, setSelectedOption] = useState("Client"); // Initial selected value
-
-  const navigate = useNavigate();
 
   const handleChange = (event: any) => {
     setSelectedOption(event.target.value);
