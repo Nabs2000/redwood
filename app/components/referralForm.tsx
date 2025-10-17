@@ -19,15 +19,47 @@ export default function ReferralForm({ client }: { client: Client }) {
     }
   };
 
-  const sendEmail = () => {
+  // In your referralForm.tsx
+  const sendEmail = async () => {
     try {
-      console.log(`Sending email with ${subject}, ${message}, ${recipient}`);
-    } catch (error: any) {
-      console.log("Error!");
-    } finally {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Get the user's ID token
+      const token = await user.getIdToken();
+
+      const formData = new FormData();
+      formData.append("subject", subject);
+      formData.append("message", message);
+      formData.append("recipient", recipient);
+      if (attachment) {
+        formData.append("attachment", attachment);
+      }
+
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to send email");
+      }
+
+      // Reset form on success
       setSubject("");
       setMessage("");
       setRecipient("");
+      setAttachment(null);
+
+      alert("Email sent successfully!");
+    } catch (error: any) {
+      console.error("Error:", error);
+      alert(error.message || "Failed to send email. Please try again.");
     }
   };
 
