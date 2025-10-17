@@ -1,15 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form } from "react-router";
 import type { Client } from "~/types/client.types";
+import { getAuth } from "firebase/auth";
+import gmailApiConfig from "../../config/gmailApiConfig";
 
 export default function ReferralForm({ client }: { client: Client }) {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [recipient, setRecipient] = useState("");
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const email = user?.email;
 
-  const sendEmail = (title: string, message: string, recipient: string) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setAttachment(event.target.files[0]);
+    }
+  };
+
+  const sendEmail = () => {
     try {
-      console.log(`Sending email with ${title}, ${message}, ${recipient}`);
+      console.log(`Sending email with ${subject}, ${message}, ${recipient}`);
     } catch (error: any) {
       console.log("Error!");
     } finally {
@@ -25,7 +37,7 @@ export default function ReferralForm({ client }: { client: Client }) {
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         onSubmit={(e) => {
           e.preventDefault();
-          sendEmail(subject, message, recipient);
+          sendEmail();
         }}
       >
         <div className="mb-4">
@@ -75,9 +87,20 @@ export default function ReferralForm({ client }: { client: Client }) {
             onChange={(e) => setMessage(e.target.value)}
           />
         </div>
+        <input
+          type="file"
+          onChange={handleFileChange}
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" // Specify accepted file types
+          className="mt-2 mb-4 block w-full text-sm text-gray-500
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-md file:border-0
+            file:text-sm file:font-semibold
+            file:bg-blue-50 file:text-blue-700
+            hover:file:bg-blue-100"
+        />
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           type="submit"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         >
           Send
         </button>
