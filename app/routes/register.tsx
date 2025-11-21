@@ -20,7 +20,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [company, setCompany] = useState("");
-  const [selectedOption, setSelectedOption] = useState("Client"); // Initial selected value
+  const [selectedOption, setSelectedOption] = useState("Mentee"); // Initial selected value
 
   const handleChange = (event: any) => {
     setSelectedOption(event.target.value);
@@ -45,33 +45,38 @@ export default function Register() {
       const auth = getAuth();
       const db = getFirestore();
       setIsLoading(true);
-      if (selectedOption === "Client") {
-        // Create a user profile document in Firestore using the user's UID
-        await setDoc(doc(db, "clients", user?.uid!), {
+      if (selectedOption === "Mentee") {
+        // Create a mentee profile document in Firestore using the user's UID
+        await setDoc(doc(db, "mentees", user?.uid!), {
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          phoneNumber: phoneNumber,
+          interestedIndustries: [],
+          interestedRoles: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userType: selectedOption,
+        });
+        // Redirect to mentee browse mentors page
+        navigate(`/mentee/browse-mentors`);
+      } else if (selectedOption === "Mentor") {
+        // Create a basic mentor profile document in Firestore using the user's UID
+        await setDoc(doc(db, "mentors", user?.uid!), {
           firstName: firstName,
           lastName: lastName,
           email: email,
           phoneNumber: phoneNumber,
           company: company,
           createdAt: new Date(),
+          updatedAt: new Date(),
           userType: selectedOption,
-          // Add other relevant profile information
+          isActive: false, // Will be set to true after profile setup
         });
-      } else if (selectedOption === "Professional") {
-        // Create a user profile document in Firestore using the user's UID
-        await setDoc(doc(db, "professionals", user?.uid!), {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          phoneNumber: phoneNumber,
-          company: company,
-          createdAt: new Date(),
-          userType: selectedOption,
-          // Add other relevant profile information
-        });
+        // Redirect to mentor profile setup
+        navigate(`/mentor/profile-setup`);
       }
       console.log("User registered and profile created:", user?.uid);
-      selectedOption === "Client" ? navigate(`/client/${user?.uid}`) : navigate(`/professional/${user?.uid}`);
     } catch (error: any) {
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -174,32 +179,32 @@ export default function Register() {
           >
             Account Type
           </label>
-          <label className="text-black">
+          <label className="text-black flex items-center gap-2 mb-2">
             <input
-              className="block text-black text-sm font-bold mb-2"
+              className="w-4 h-4 text-emerald-600"
               type="radio"
               name="myRadioGroup"
-              value="Client"
-              id="Client"
-              checked={selectedOption === "Client"}
+              value="Mentee"
+              id="Mentee"
+              checked={selectedOption === "Mentee"}
               onChange={handleChange}
             />
-            Client
+            <span>Mentee (seeking career guidance)</span>
           </label>
-          <label className="text-black">
+          <label className="text-black flex items-center gap-2">
             <input
-              className="block text-black text-sm font-bold mb-2"
+              className="w-4 h-4 text-emerald-600"
               type="radio"
               name="myRadioGroup"
-              value="Professional"
-              id="Professional"
-              checked={selectedOption === "Professional"}
+              value="Mentor"
+              id="Mentor"
+              checked={selectedOption === "Mentor"}
               onChange={handleChange}
             />
-            Professional
+            <span>Mentor (offering career guidance)</span>
           </label>
         </div>
-        {selectedOption === "Professional" && (
+        {selectedOption === "Mentor" && (
           <div className="mb-6">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
