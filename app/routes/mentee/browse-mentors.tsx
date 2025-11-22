@@ -1,103 +1,56 @@
-import { useState } from 'react';
-import { Link } from 'react-router';
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
-import { Select } from '~/components/ui/Select';
-import { Card, CardContent } from '~/components/ui/Card';
-import { Avatar } from '~/components/ui/Avatar';
-import { Badge } from '~/components/ui/Badge';
-import { type Mentor } from '~/types/mentor.types';
+import { useState } from "react";
+import { Link } from "react-router";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
+import { Button } from "~/components/ui/Button";
+import { Input } from "~/components/ui/Input";
+import { Select } from "~/components/ui/Select";
+import { Card, CardContent } from "~/components/ui/Card";
+import { Avatar } from "~/components/ui/Avatar";
+import { Badge } from "~/components/ui/Badge";
+import { type Mentor } from "~/types/mentor.types";
 
 // TODO: Replace with actual data from Firebase
-const MOCK_MENTORS: Mentor[] = [
-  {
-    id: '1',
-    firstName: 'Ahmed',
-    lastName: 'Rahman',
-    email: 'ahmed@example.com',
-    phoneNumber: '555-0100',
-    company: 'Tech Corp',
-    title: 'Senior Software Engineer',
-    bio: 'Passionate about helping aspiring engineers break into tech. Specialized in full-stack development and system design.',
-    industry: 'technology',
-    specialties: ['Software Engineering', 'System Design', 'Career Transitions'],
-    yearsOfExperience: 8,
-    timezone: 'America/New_York',
-    availability: {
-      monday: [{ startTime: '18:00', endTime: '20:00' }],
-      tuesday: [],
-      wednesday: [{ startTime: '18:00', endTime: '20:00' }],
-      thursday: [],
-      friday: [],
-      saturday: [{ startTime: '10:00', endTime: '14:00' }],
-      sunday: []
-    },
-    servicesOffered: ['initial-consultation', 'referral-request', 'resume-review', 'mock-interview'],
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    rating: 4.8,
-    totalMeetings: 45
-  },
-  {
-    id: '2',
-    firstName: 'Fatima',
-    lastName: 'Hassan',
-    email: 'fatima@example.com',
-    phoneNumber: '555-0101',
-    company: 'Healthcare Solutions',
-    title: 'Product Manager',
-    bio: 'Helping professionals transition into product management. 10 years of experience in healthcare tech.',
-    industry: 'healthcare',
-    specialties: ['Product Management', 'Healthcare Tech', 'Leadership'],
-    yearsOfExperience: 10,
-    timezone: 'America/Chicago',
-    availability: {
-      monday: [{ startTime: '17:00', endTime: '19:00' }],
-      tuesday: [{ startTime: '17:00', endTime: '19:00' }],
-      wednesday: [],
-      thursday: [{ startTime: '17:00', endTime: '19:00' }],
-      friday: [],
-      saturday: [],
-      sunday: [{ startTime: '14:00', endTime: '16:00' }]
-    },
-    servicesOffered: ['initial-consultation', 'career-advice', 'mock-interview'],
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    rating: 4.9,
-    totalMeetings: 67
-  }
-];
+async function fetchMentors(): Promise<Mentor[]> {
+  const querySnapshot = await getDocs(collection(db, "mentors"));
+  const mentors: Mentor[] = [];
+  querySnapshot.forEach((doc) => {
+    mentors.push(doc.data() as Mentor);
+  });
+  return mentors;
+}
 
 export default function BrowseMentors() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [industryFilter, setIndustryFilter] = useState('');
-  const [mentors] = useState<Mentor[]>(MOCK_MENTORS);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [industryFilter, setIndustryFilter] = useState("");
+  const [mentors, setMentors] = useState<Mentor[]>([]);
 
   const industries = [
-    { value: '', label: 'All Industries' },
-    { value: 'technology', label: 'Technology' },
-    { value: 'healthcare', label: 'Healthcare' },
-    { value: 'finance', label: 'Finance' },
-    { value: 'education', label: 'Education' },
-    { value: 'engineering', label: 'Engineering' },
-    { value: 'marketing', label: 'Marketing' },
-    { value: 'consulting', label: 'Consulting' },
-    { value: 'legal', label: 'Legal' },
-    { value: 'other', label: 'Other' }
+    { value: "", label: "All Industries" },
+    { value: "technology", label: "Technology" },
+    { value: "healthcare", label: "Healthcare" },
+    { value: "finance", label: "Finance" },
+    { value: "education", label: "Education" },
+    { value: "engineering", label: "Engineering" },
+    { value: "marketing", label: "Marketing" },
+    { value: "consulting", label: "Consulting" },
+    { value: "legal", label: "Legal" },
+    { value: "other", label: "Other" },
   ];
 
   const filteredMentors = mentors.filter((mentor) => {
     const matchesSearch =
-      searchQuery === '' ||
+      searchQuery === "" ||
       mentor.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mentor.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mentor.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mentor.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mentor.specialties.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
+      mentor.specialties.some((s) =>
+        s.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
-    const matchesIndustry = industryFilter === '' || mentor.industry === industryFilter;
+    const matchesIndustry =
+      industryFilter === "" || mentor.industry === industryFilter;
 
     return matchesSearch && matchesIndustry && mentor.isActive;
   });
@@ -138,7 +91,8 @@ export default function BrowseMentors() {
         {/* Results count */}
         <div className="mb-4">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            {filteredMentors.length} {filteredMentors.length === 1 ? 'mentor' : 'mentors'} available
+            {filteredMentors.length}{" "}
+            {filteredMentors.length === 1 ? "mentor" : "mentors"} available
           </p>
         </div>
 
@@ -179,17 +133,20 @@ export default function BrowseMentors() {
 
 function MentorCard({ mentor }: { mentor: Mentor }) {
   // Calculate total available hours per week
-  const totalHours = Object.values(mentor.availability).reduce((total, slots) => {
-    return (
-      total +
-      slots.reduce((slotTotal, slot) => {
-        const [startHour, startMin] = slot.startTime.split(':').map(Number);
-        const [endHour, endMin] = slot.endTime.split(':').map(Number);
-        const duration = endHour * 60 + endMin - (startHour * 60 + startMin);
-        return slotTotal + duration / 60;
-      }, 0)
-    );
-  }, 0);
+  const totalHours = Object.values(mentor.availability).reduce(
+    (total: number, slots: { startTime: string; endTime: string }[]) => {
+      return (
+        total +
+        slots.reduce((slotTotal, slot) => {
+          const [startHour, startMin] = slot.startTime.split(":").map(Number);
+          const [endHour, endMin] = slot.endTime.split(":").map(Number);
+          const duration = endHour * 60 + endMin - (startHour * 60 + startMin);
+          return slotTotal + duration / 60;
+        }, 0)
+      );
+    },
+    0
+  );
 
   return (
     <Card hover className="h-full flex flex-col">
@@ -205,8 +162,12 @@ function MentorCard({ mentor }: { mentor: Mentor }) {
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
               {mentor.firstName} {mentor.lastName}
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{mentor.title}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-500 truncate">{mentor.company}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400 truncate">
+              {mentor.title}
+            </p>
+            <p className="text-sm text-slate-500 dark:text-slate-500 truncate">
+              {mentor.company}
+            </p>
           </div>
         </div>
 
@@ -214,7 +175,11 @@ function MentorCard({ mentor }: { mentor: Mentor }) {
         <div className="flex items-center gap-4 mb-3 text-sm">
           {mentor.rating && (
             <div className="flex items-center gap-1">
-              <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="w-4 h-4 text-amber-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
               <span className="font-medium text-slate-700 dark:text-slate-300">
@@ -254,7 +219,12 @@ function MentorCard({ mentor }: { mentor: Mentor }) {
         {/* Availability indicator */}
         <div className="mb-4 pt-2 border-t border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-2 text-sm">
-            <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-4 h-4 text-emerald-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -263,7 +233,9 @@ function MentorCard({ mentor }: { mentor: Mentor }) {
               />
             </svg>
             <span className="text-slate-600 dark:text-slate-400">
-              {totalHours > 0 ? `~${Math.round(totalHours)} hours/week` : 'Limited availability'}
+              {totalHours > 0
+                ? `~${Math.round(totalHours)} hours/week`
+                : "Limited availability"}
             </span>
           </div>
         </div>
