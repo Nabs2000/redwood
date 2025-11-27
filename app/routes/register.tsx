@@ -24,44 +24,15 @@ export default function Register() {
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [company, setCompany] = useState("");
-  const [selectedOption, setSelectedOption] = useState<"Mentee" | "Mentor">("Mentee");
+  const [selectedOption, setSelectedOption] = useState<"Mentee" | "Mentor">(
+    "Mentee"
+  );
   const [error, setError] = useState<string | null>(null);
 
   const auth = getAuth();
   const user = auth.currentUser;
   const email = user?.email;
   const navigate = useNavigate();
-
-  // Check if user is already signed in with Google
-  useEffect(() => {
-    if (user) {
-      setIsGoogleSignedIn(true);
-      // Pre-fill name from Google account if available
-      if (user.displayName) {
-        const names = user.displayName.split(" ");
-        setFirstName(names[0] || "");
-        setLastName(names.slice(1).join(" ") || "");
-      }
-
-      // Check if user already has a profile
-      checkExistingProfile();
-    }
-  }, [user]);
-
-  const checkExistingProfile = async () => {
-    if (!user?.uid) return;
-
-    const menteeRef = doc(db, "mentees", user.uid);
-    const mentorRef = doc(db, "mentors", user.uid);
-    const menteeSnap = await getDoc(menteeRef);
-    const mentorSnap = await getDoc(mentorRef);
-
-    if (menteeSnap.exists()) {
-      navigate("/mentee/dashboard");
-    } else if (mentorSnap.exists()) {
-      navigate("/mentor/dashboard");
-    }
-  };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -101,10 +72,11 @@ export default function Register() {
         navigate("/mentor/dashboard");
         return;
       }
-
     } catch (error: any) {
       console.error("Google sign-in error:", error);
-      setError(error.message || "Failed to sign in with Google. Please try again.");
+      setError(
+        error.message || "Failed to sign in with Google. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -150,8 +122,8 @@ export default function Register() {
           updatedAt: new Date(),
           userType: selectedOption,
         });
-        // Redirect to mentee browse mentors page
-        navigate("/mentee/browse-mentors");
+        // Redirect to mentee dashboard
+        navigate("/mentee/dashboard");
       } else if (selectedOption === "Mentor") {
         // Create a basic mentor profile document in Firestore using the user's UID
         await setDoc(doc(db, "mentors", user.uid), {
@@ -190,7 +162,12 @@ export default function Register() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-7 h-7 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -203,7 +180,9 @@ export default function Register() {
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 Mozlem Mentorz
               </h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Community Career Guidance</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Community Career Guidance
+              </p>
             </div>
           </Link>
         </div>
@@ -222,7 +201,9 @@ export default function Register() {
               <div className="space-y-4">
                 {error && (
                   <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                    <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                    <p className="text-sm text-red-800 dark:text-red-200">
+                      {error}
+                    </p>
                   </div>
                 )}
 
@@ -273,13 +254,21 @@ export default function Register() {
                 </div>
 
                 <Link to="/login" className="block">
-                  <Button variant="outline" className="w-full" size="lg" type="button">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    size="lg"
+                    type="button"
+                  >
                     Sign In
                   </Button>
                 </Link>
 
                 <div className="text-center">
-                  <Link to="/" className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline">
+                  <Link
+                    to="/"
+                    className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
+                  >
                     ← Back to Home
                   </Link>
                 </div>
@@ -289,15 +278,27 @@ export default function Register() {
               <form onSubmit={completeRegistration} className="space-y-4">
                 {error && (
                   <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                    <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                    <p className="text-sm text-red-800 dark:text-red-200">
+                      {error}
+                    </p>
                   </div>
                 )}
 
                 {/* Show signed in email */}
                 <div className="bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="w-5 h-5 text-emerald-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                     <div className="text-sm text-emerald-800 dark:text-emerald-200">
                       Signed in as <strong>{email}</strong>
@@ -317,20 +318,24 @@ export default function Register() {
                       onClick={() => handleChange("Mentee")}
                       className={`
                         w-full text-left p-4 rounded-lg border-2 transition-all duration-200
-                        ${selectedOption === "Mentee"
-                          ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950'
-                          : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700'
+                        ${
+                          selectedOption === "Mentee"
+                            ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950"
+                            : "border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700"
                         }
                       `}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`
+                        <div
+                          className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
-                          ${selectedOption === "Mentee"
-                            ? 'border-emerald-600 bg-emerald-600'
-                            : 'border-slate-300 dark:border-slate-600'
+                          ${
+                            selectedOption === "Mentee"
+                              ? "border-emerald-600 bg-emerald-600"
+                              : "border-slate-300 dark:border-slate-600"
                           }
-                        `}>
+                        `}
+                        >
                           {selectedOption === "Mentee" && (
                             <div className="w-2 h-2 bg-white rounded-full"></div>
                           )}
@@ -351,20 +356,24 @@ export default function Register() {
                       onClick={() => handleChange("Mentor")}
                       className={`
                         w-full text-left p-4 rounded-lg border-2 transition-all duration-200
-                        ${selectedOption === "Mentor"
-                          ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950'
-                          : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700'
+                        ${
+                          selectedOption === "Mentor"
+                            ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950"
+                            : "border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700"
                         }
                       `}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`
+                        <div
+                          className={`
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
-                          ${selectedOption === "Mentor"
-                            ? 'border-emerald-600 bg-emerald-600'
-                            : 'border-slate-300 dark:border-slate-600'
+                          ${
+                            selectedOption === "Mentor"
+                              ? "border-emerald-600 bg-emerald-600"
+                              : "border-slate-300 dark:border-slate-600"
                           }
-                        `}>
+                        `}
+                        >
                           {selectedOption === "Mentor" && (
                             <div className="w-2 h-2 bg-white rounded-full"></div>
                           )}
@@ -427,14 +436,31 @@ export default function Register() {
                 {/* Info Box */}
                 <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                   <div className="flex gap-3">
-                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                     <div className="text-sm text-blue-800 dark:text-blue-200">
                       {selectedOption === "Mentee" ? (
-                        <p>After registration, you'll be able to browse mentors and schedule your first consultation.</p>
+                        <p>
+                          After registration, you'll be able to browse mentors
+                          and schedule your first consultation.
+                        </p>
                       ) : (
-                        <p>After registration, you'll complete your mentor profile including your availability and services offered.</p>
+                        <p>
+                          After registration, you'll complete your mentor
+                          profile including your availability and services
+                          offered.
+                        </p>
                       )}
                     </div>
                   </div>
@@ -455,7 +481,8 @@ export default function Register() {
         </Card>
 
         <p className="text-center text-sm text-slate-600 dark:text-slate-400 mt-6">
-          By creating an account, you agree to our Terms of Service and Privacy Policy
+          By creating an account, you agree to our Terms of Service and Privacy
+          Policy
         </p>
       </div>
     </div>
