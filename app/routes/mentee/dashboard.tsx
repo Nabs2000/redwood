@@ -1,58 +1,98 @@
-import { Link } from 'react-router';
-import { Button } from '~/components/ui/Button';
-import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/Card';
-import { Avatar } from '~/components/ui/Avatar';
-import { Badge } from '~/components/ui/Badge';
-import { type Meeting, MeetingStatusLabels } from '~/types/meeting.types';
-import { ServiceTypeLabels } from '~/types/mentor.types';
+import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { db } from "~/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { Button } from "~/components/ui/Button";
+import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
+import { Avatar } from "~/components/ui/Avatar";
+import { Badge } from "~/components/ui/Badge";
+import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
+import { ServiceTypeLabels } from "~/types/mentor.types";
 
 // TODO: Replace with actual data from Firebase
 const MOCK_MEETINGS: Meeting[] = [
   {
-    id: '1',
-    mentorId: '1',
-    menteeId: 'current-user',
-    type: 'initial-consultation',
+    id: "1",
+    mentorId: "1",
+    menteeId: "current-user",
+    type: "initial-consultation",
     scheduledDate: new Date(2025, 10, 25),
-    scheduledTime: '14:00',
+    scheduledTime: "14:00",
     durationMinutes: 30,
-    status: 'confirmed',
-    meetingLink: 'https://meet.google.com/abc-defg-hij',
-    menteeNotes: 'Looking to break into software engineering',
+    status: "confirmed",
+    meetingLink: "https://meet.google.com/abc-defg-hij",
+    menteeNotes: "Looking to break into software engineering",
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   },
   {
-    id: '2',
-    mentorId: '2',
-    menteeId: 'current-user',
-    type: 'resume-review',
+    id: "2",
+    mentorId: "2",
+    menteeId: "current-user",
+    type: "resume-review",
     scheduledDate: new Date(2025, 10, 28),
-    scheduledTime: '16:00',
+    scheduledTime: "16:00",
     durationMinutes: 30,
-    status: 'pending',
-    menteeNotes: 'Need help with my resume for product manager roles',
+    status: "pending",
+    menteeNotes: "Need help with my resume for product manager roles",
     createdAt: new Date(),
-    updatedAt: new Date()
-  }
+    updatedAt: new Date(),
+  },
 ];
 
 // Mock mentor data for display
-const MOCK_MENTOR_INFO: Record<string, { name: string; title: string; company: string; photo?: string }> = {
-  '1': { name: 'Ahmed Rahman', title: 'Senior Software Engineer', company: 'Tech Corp' },
-  '2': { name: 'Fatima Hassan', title: 'Product Manager', company: 'Healthcare Solutions' }
+const MOCK_MENTOR_INFO: Record<
+  string,
+  { name: string; title: string; company: string; photo?: string }
+> = {
+  "1": {
+    name: "Ahmed Rahman",
+    title: "Senior Software Engineer",
+    company: "Tech Corp",
+  },
+  "2": {
+    name: "Fatima Hassan",
+    title: "Product Manager",
+    company: "Healthcare Solutions",
+  },
 };
 
 export default function MenteeDashboard() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const auth = getAuth();
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/auth.user
+        const uid = user.uid;
+        console.log("User is signed in with UID:", uid);
+        setFirstName(user.displayName?.split(" ")[0] || "");
+        setLastName(user.displayName?.split(" ")[1] || "");
+      } else {
+        // User is signed out
+        // ...
+        console.log("User is signed out");
+      }
+    });
+  }, []);
   const upcomingMeetings = MOCK_MEETINGS.filter(
-    (m) => m.status === 'confirmed' && new Date(m.scheduledDate) >= new Date()
-  ).sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
+    (m) => m.status === "confirmed" && new Date(m.scheduledDate) >= new Date()
+  ).sort(
+    (a, b) =>
+      new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
+  );
 
-  const pendingMeetings = MOCK_MEETINGS.filter((m) => m.status === 'pending');
+  const pendingMeetings = MOCK_MEETINGS.filter((m) => m.status === "pending");
 
   const pastMeetings = MOCK_MEETINGS.filter(
-    (m) => m.status === 'completed' || new Date(m.scheduledDate) < new Date()
-  ).sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime());
+    (m) => m.status === "completed" || new Date(m.scheduledDate) < new Date()
+  ).sort(
+    (a, b) =>
+      new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime()
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 dark:from-slate-900 dark:to-slate-800">
@@ -62,7 +102,7 @@ export default function MenteeDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                My Dashboard
+                Welcome back, {firstName}!
               </h1>
               <p className="text-slate-600 dark:text-slate-400">
                 Track your mentorship journey
@@ -70,7 +110,12 @@ export default function MenteeDashboard() {
             </div>
             <Link to="/mentee/browse-mentors">
               <Button>
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -92,11 +137,20 @@ export default function MenteeDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Upcoming</p>
-                  <p className="text-3xl font-bold text-emerald-600">{upcomingMeetings.length}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                    Upcoming
+                  </p>
+                  <p className="text-3xl font-bold text-emerald-600">
+                    {upcomingMeetings.length}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-6 h-6 text-emerald-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -113,11 +167,20 @@ export default function MenteeDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Pending</p>
-                  <p className="text-3xl font-bold text-amber-600">{pendingMeetings.length}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                    Pending
+                  </p>
+                  <p className="text-3xl font-bold text-amber-600">
+                    {pendingMeetings.length}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-6 h-6 text-amber-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -134,11 +197,20 @@ export default function MenteeDashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Completed</p>
-                  <p className="text-3xl font-bold text-blue-600">{pastMeetings.length}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                    Completed
+                  </p>
+                  <p className="text-3xl font-bold text-blue-600">
+                    {pastMeetings.length}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-6 h-6 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -231,16 +303,16 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'confirmed':
-        return 'success';
-      case 'pending':
-        return 'warning';
-      case 'completed':
-        return 'info';
-      case 'cancelled':
-        return 'danger';
+      case "confirmed":
+        return "success";
+      case "pending":
+        return "warning";
+      case "completed":
+        return "info";
+      case "cancelled":
+        return "danger";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -267,7 +339,12 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -275,16 +352,21 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                {new Date(meeting.scheduledDate).toLocaleDateString('en-US', {
-                  weekday: 'short',
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
+                {new Date(meeting.scheduledDate).toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
                 })}
               </div>
 
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -296,7 +378,12 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
               </div>
 
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -315,10 +402,19 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
             )}
 
             <div className="flex gap-2">
-              {meeting.status === 'confirmed' && meeting.meetingLink && (
-                <a href={meeting.meetingLink} target="_blank" rel="noopener noreferrer">
+              {meeting.status === "confirmed" && meeting.meetingLink && (
+                <a
+                  href={meeting.meetingLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Button size="sm">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -331,19 +427,20 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
                 </a>
               )}
 
-              {meeting.status === 'confirmed' && !isPast && (
+              {meeting.status === "confirmed" && !isPast && (
                 <Button size="sm" variant="outline">
                   Reschedule
                 </Button>
               )}
 
-              {meeting.status === 'completed' && meeting.type === 'initial-consultation' && (
-                <Link to={`/mentee/request-service/${meeting.mentorId}`}>
-                  <Button size="sm" variant="outline">
-                    Request Service
-                  </Button>
-                </Link>
-              )}
+              {meeting.status === "completed" &&
+                meeting.type === "initial-consultation" && (
+                  <Link to={`/mentee/request-service/${meeting.mentorId}`}>
+                    <Button size="sm" variant="outline">
+                      Request Service
+                    </Button>
+                  </Link>
+                )}
             </div>
           </div>
         </div>
