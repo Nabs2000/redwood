@@ -5,7 +5,6 @@ export default [
   index("routes/home.tsx"),
 
   // Authentication
-  route("login", "routes/login.tsx"),
   route("register", "routes/register.tsx"),
 
   // Mentor Routes
