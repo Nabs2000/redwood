@@ -5,6 +5,7 @@ export interface Mentor {
   email: string;
   phoneNumber: string;
   company: string;
+  registrationComplete: boolean;
 
   // Profile information
   title: string; // e.g., "Senior Software Engineer", "Marketing Director"
@@ -47,28 +48,29 @@ export interface WeeklyAvailability {
 
 export interface TimeSlot {
   startTime: string; // Format: "HH:MM" (24-hour)
-  endTime: string;   // Format: "HH:MM" (24-hour)
+  endTime: string; // Format: "HH:MM" (24-hour)
 }
 
 export type ServiceType =
-  | 'initial-consultation'
-  | 'referral-request'
-  | 'resume-review'
-  | 'mock-interview'
-  | 'career-advice';
+  | "initial-consultation"
+  | "referral-request"
+  | "resume-review"
+  | "mock-interview"
+  | "career-advice";
 
 export const ServiceTypeLabels: Record<ServiceType, string> = {
-  'initial-consultation': 'Initial Consultation',
-  'referral-request': 'Referral Request',
-  'resume-review': 'Resume Review',
-  'mock-interview': 'Mock Interview',
-  'career-advice': 'Career Advice'
+  "initial-consultation": "Initial Consultation",
+  "referral-request": "Referral Request",
+  "resume-review": "Resume Review",
+  "mock-interview": "Mock Interview",
+  "career-advice": "Career Advice",
 };
 
 export const ServiceTypeDescriptions: Record<ServiceType, string> = {
-  'initial-consultation': 'Get to know your mentor and discuss your career goals',
-  'referral-request': 'Request a referral to your mentor\'s company or network',
-  'resume-review': 'Get feedback and suggestions on your resume',
-  'mock-interview': 'Practice interviewing with personalized feedback',
-  'career-advice': 'General career guidance and mentorship'
+  "initial-consultation":
+    "Get to know your mentor and discuss your career goals",
+  "referral-request": "Request a referral to your mentor's company or network",
+  "resume-review": "Get feedback and suggestions on your resume",
+  "mock-interview": "Practice interviewing with personalized feedback",
+  "career-advice": "General career guidance and mentorship",
 };
