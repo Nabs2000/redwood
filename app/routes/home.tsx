@@ -1,7 +1,7 @@
-import { Link } from 'react-router';
-import { Button } from '~/components/ui/Button';
-import { Card, CardContent } from '~/components/ui/Card';
-import { Avatar } from '~/components/ui/Avatar';
+import { Link } from "react-router";
+import { Button } from "~/components/ui/Button";
+import { Card, CardContent } from "~/components/ui/Card";
+import { Avatar } from "~/components/ui/Avatar";
 
 export default function Home() {
   return (
@@ -12,7 +12,12 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -25,13 +30,12 @@ export default function Home() {
                 <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                   Mozlem Mentorz
                 </h1>
-                <p className="text-xs text-slate-600 dark:text-slate-400">Community Career Guidance</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Community Career Guidance
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Link to="/login">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
               <Link to="/register">
                 <Button>Get Started</Button>
               </Link>
@@ -50,35 +54,36 @@ export default function Home() {
             </span>
           </h2>
           <p className="text-xl text-slate-600 dark:text-slate-400 mb-8">
-            Join our Muslim community's professional network. Get career guidance, referrals,
-            resume reviews, and mock interviews from experienced professionals.
+            Join our Muslim community's professional network. Get career
+            guidance, referrals, resume reviews, and mock interviews from
+            experienced professionals.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register">
-              <Button size="lg" className="w-full sm:w-auto">
-                Find a Mentor
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Become a Mentor
-              </Button>
-            </Link>
-          </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
             <div>
-              <div className="text-4xl font-bold text-emerald-600 mb-2">50+</div>
-              <div className="text-sm text-slate-600 dark:text-slate-400">Active Mentors</div>
+              <div className="text-4xl font-bold text-emerald-600 mb-2">
+                50+
+              </div>
+              <div className="text-sm text-slate-600 dark:text-slate-400">
+                Active Mentors
+              </div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-emerald-600 mb-2">200+</div>
-              <div className="text-sm text-slate-600 dark:text-slate-400">Sessions Completed</div>
+              <div className="text-4xl font-bold text-emerald-600 mb-2">
+                200+
+              </div>
+              <div className="text-sm text-slate-600 dark:text-slate-400">
+                Sessions Completed
+              </div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-emerald-600 mb-2">15+</div>
-              <div className="text-sm text-slate-600 dark:text-slate-400">Industries</div>
+              <div className="text-4xl font-bold text-emerald-600 mb-2">
+                15+
+              </div>
+              <div className="text-sm text-slate-600 dark:text-slate-400">
+                Industries
+              </div>
             </div>
           </div>
         </div>
@@ -99,7 +104,12 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <ServiceCard
               icon={
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -113,7 +123,12 @@ export default function Home() {
             />
             <ServiceCard
               icon={
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -127,7 +142,12 @@ export default function Home() {
             />
             <ServiceCard
               icon={
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -141,7 +161,12 @@ export default function Home() {
             />
             <ServiceCard
               icon={
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -239,7 +264,11 @@ export default function Home() {
                   </Button>
                 </Link>
                 <Link to="/mentee/browse-mentors">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                  >
                     Browse Mentors
                   </Button>
                 </Link>
@@ -256,7 +285,12 @@ export default function Home() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -268,40 +302,107 @@ export default function Home() {
                 <span className="font-bold text-white">Mozlem Mentorz</span>
               </div>
               <p className="text-sm text-slate-400">
-                Empowering our community through professional mentorship and career guidance.
+                Empowering our community through professional mentorship and
+                career guidance.
               </p>
             </div>
 
             <div>
               <h4 className="font-semibold text-white mb-4">For Mentees</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/mentee/browse-mentors" className="hover:text-emerald-400 transition-colors">Browse Mentors</Link></li>
-                <li><Link to="/register" className="hover:text-emerald-400 transition-colors">Sign Up</Link></li>
-                <li><Link to="/mentee/dashboard" className="hover:text-emerald-400 transition-colors">Dashboard</Link></li>
+                <li>
+                  <Link
+                    to="/mentee/browse-mentors"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Browse Mentors
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/register"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Sign Up
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/mentee/dashboard"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-white mb-4">For Mentors</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/register" className="hover:text-emerald-400 transition-colors">Become a Mentor</Link></li>
-                <li><Link to="/mentor/dashboard" className="hover:text-emerald-400 transition-colors">Mentor Dashboard</Link></li>
-                <li><Link to="/mentor/profile-setup" className="hover:text-emerald-400 transition-colors">Profile Setup</Link></li>
+                <li>
+                  <Link
+                    to="/register"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Become a Mentor
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/mentor/dashboard"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Mentor Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/mentor/profile-setup"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Profile Setup
+                  </Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-white mb-4">Community</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Privacy Policy</a></li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Contact
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Privacy Policy
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
 
           <div className="border-t border-slate-800 pt-8 text-center text-sm text-slate-400">
-            <p>&copy; {new Date().getFullYear()} Mozlem Mentorz. Built with ❤️ for our community.</p>
+            <p>
+              &copy; {new Date().getFullYear()} Mozlem Mentorz. Built with ❤️
+              for our community.
+            </p>
           </div>
         </div>
       </footer>
@@ -309,47 +410,84 @@ export default function Home() {
   );
 }
 
-function ServiceCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function ServiceCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
   return (
     <Card hover className="h-full">
       <CardContent className="pt-6">
         <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
           {icon}
         </div>
-        <h4 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">{title}</h4>
+        <h4 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+          {title}
+        </h4>
         <p className="text-slate-600 dark:text-slate-400">{description}</p>
       </CardContent>
     </Card>
   );
 }
 
-function StepCard({ number, title, description }: { number: string; title: string; description: string }) {
+function StepCard({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
   return (
     <div className="text-center">
       <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg">
         {number}
       </div>
-      <h4 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">{title}</h4>
+      <h4 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        {title}
+      </h4>
       <p className="text-slate-600 dark:text-slate-400">{description}</p>
     </div>
   );
 }
 
-function TestimonialCard({ name, role, quote }: { name: string; role: string; quote: string }) {
+function TestimonialCard({
+  name,
+  role,
+  quote,
+}: {
+  name: string;
+  role: string;
+  quote: string;
+}) {
   return (
     <Card>
       <CardContent className="pt-6">
         <div className="flex items-center gap-3 mb-4">
           <Avatar size="md" fallback={name} />
           <div>
-            <div className="font-semibold text-slate-900 dark:text-slate-100">{name}</div>
-            <div className="text-sm text-slate-600 dark:text-slate-400">{role}</div>
+            <div className="font-semibold text-slate-900 dark:text-slate-100">
+              {name}
+            </div>
+            <div className="text-sm text-slate-600 dark:text-slate-400">
+              {role}
+            </div>
           </div>
         </div>
         <p className="text-slate-600 dark:text-slate-400 italic">"{quote}"</p>
         <div className="flex gap-1 mt-4">
           {[1, 2, 3, 4, 5].map((star) => (
-            <svg key={star} className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg
+              key={star}
+              className="w-5 h-5 text-amber-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
           ))}
