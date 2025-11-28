@@ -46,7 +46,6 @@ export default function Register() {
 
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      console.log("Google sign-in successful:", user);
 
       // Pre-fill name from Google account
       if (user.displayName) {
@@ -60,9 +59,7 @@ export default function Register() {
       const menteeRef = doc(db, "mentees", user.uid);
       const mentorRef = doc(db, "mentors", user.uid);
       const menteeSnap = await getDoc(menteeRef);
-      console.log("Mentee profile snapshot:", menteeSnap);
       const mentorSnap = await getDoc(mentorRef);
-      console.log("Mentor profile snapshot:", mentorSnap);
 
       if (menteeSnap.exists()) {
         setAccountExists(true);
@@ -76,7 +73,6 @@ export default function Register() {
 
       setIsGoogleSignedIn(true);
     } catch (error: any) {
-      console.error("Google sign-in error:", error);
       setError(
         error.message || "Failed to sign in with Google. Please try again."
       );
