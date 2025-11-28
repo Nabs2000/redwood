@@ -208,7 +208,7 @@ export default function Register() {
                 )}
 
                 <div className="text-center py-4">
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
                     Sign in with your Google account to get started
                   </p>
                 </div>
