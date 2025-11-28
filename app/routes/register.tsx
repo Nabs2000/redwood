@@ -242,28 +242,6 @@ export default function Register() {
                   Continue with Google
                 </Button>
 
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-300 dark:border-slate-600"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                      Already have an account?
-                    </span>
-                  </div>
-                </div>
-
-                <Link to="/login" className="block">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    size="lg"
-                    type="button"
-                  >
-                    Sign In
-                  </Button>
-                </Link>
-
                 <div className="text-center">
                   <Link
                     to="/"
