@@ -20,6 +20,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleSignedIn, setIsGoogleSignedIn] = useState(false);
+  const [accountExists, setAccountExists] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -47,8 +48,6 @@ export default function Register() {
       const user = result.user;
       console.log("Google sign-in successful:", user);
 
-      setIsGoogleSignedIn(true);
-
       // Pre-fill name from Google account
       if (user.displayName) {
         const names = user.displayName.split(" ");
@@ -66,12 +65,16 @@ export default function Register() {
       console.log("Mentor profile snapshot:", mentorSnap);
 
       if (menteeSnap.exists()) {
+        setAccountExists(true);
         navigate("/mentee/dashboard");
         return;
       } else if (mentorSnap.exists()) {
+        setAccountExists(true);
         navigate("/mentor/dashboard");
         return;
       }
+
+      setIsGoogleSignedIn(true);
     } catch (error: any) {
       console.error("Google sign-in error:", error);
       setError(
@@ -152,6 +155,7 @@ export default function Register() {
       setError(errorMessage || "Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
+      setAccountExists(false);
     }
   }
 
@@ -196,7 +200,11 @@ export default function Register() {
           </CardHeader>
 
           <CardContent>
-            {!isGoogleSignedIn ? (
+            {accountExists ? (
+              <div className="text-center py-8">
+                <h1>Account exists. Loading profile...</h1>
+              </div>
+            ) : !isGoogleSignedIn ? (
               // Step 1: Google Sign In
               <div className="space-y-4">
                 {error && (
