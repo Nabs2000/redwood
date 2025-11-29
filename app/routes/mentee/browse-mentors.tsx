@@ -58,7 +58,7 @@ export default function BrowseMentors() {
     const matchesIndustry =
       industryFilter === "" || mentor.industry === industryFilter;
 
-    return matchesSearch && matchesIndustry && mentor.isActive;
+    return matchesSearch && matchesIndustry;
   });
 
   return (
