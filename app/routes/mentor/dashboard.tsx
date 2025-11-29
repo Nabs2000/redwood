@@ -1,76 +1,111 @@
-import { useState } from 'react';
-import { Link } from 'react-router';
-import { Button } from '~/components/ui/Button';
-import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/Card';
-import { Avatar } from '~/components/ui/Avatar';
-import { Badge } from '~/components/ui/Badge';
-import { type Meeting, MeetingStatusLabels } from '~/types/meeting.types';
-import { ServiceTypeLabels } from '~/types/mentor.types';
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { Button } from "~/components/ui/Button";
+import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
+import { Avatar } from "~/components/ui/Avatar";
+import { Badge } from "~/components/ui/Badge";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
+import { ServiceTypeLabels } from "~/types/mentor.types";
 
 // TODO: Replace with actual data from Firebase
 const MOCK_MEETINGS: Meeting[] = [
   {
-    id: '1',
-    mentorId: 'current-mentor',
-    menteeId: '1',
-    type: 'initial-consultation',
+    id: "1",
+    mentorId: "current-mentor",
+    menteeId: "1",
+    type: "initial-consultation",
     scheduledDate: new Date(2025, 10, 25),
-    scheduledTime: '14:00',
+    scheduledTime: "14:00",
     durationMinutes: 30,
-    status: 'pending',
-    menteeNotes: 'Looking to break into software engineering. Would love to learn about your career path.',
+    status: "pending",
+    menteeNotes:
+      "Looking to break into software engineering. Would love to learn about your career path.",
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   },
   {
-    id: '2',
-    mentorId: 'current-mentor',
-    menteeId: '2',
-    type: 'resume-review',
+    id: "2",
+    mentorId: "current-mentor",
+    menteeId: "2",
+    type: "resume-review",
     scheduledDate: new Date(2025, 10, 27),
-    scheduledTime: '16:00',
+    scheduledTime: "16:00",
     durationMinutes: 30,
-    status: 'confirmed',
-    meetingLink: 'https://meet.google.com/xyz-abcd-efg',
-    menteeNotes: 'Need feedback on my resume for senior engineer positions',
+    status: "confirmed",
+    meetingLink: "https://meet.google.com/xyz-abcd-efg",
+    menteeNotes: "Need feedback on my resume for senior engineer positions",
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   },
   {
-    id: '3',
-    mentorId: 'current-mentor',
-    menteeId: '3',
-    type: 'mock-interview',
+    id: "3",
+    mentorId: "current-mentor",
+    menteeId: "3",
+    type: "mock-interview",
     scheduledDate: new Date(2025, 10, 30),
-    scheduledTime: '18:00',
+    scheduledTime: "18:00",
     durationMinutes: 60,
-    status: 'confirmed',
-    meetingLink: 'https://meet.google.com/mock-interview-123',
-    menteeNotes: 'Preparing for technical interviews at FAANG companies',
+    status: "confirmed",
+    meetingLink: "https://meet.google.com/mock-interview-123",
+    menteeNotes: "Preparing for technical interviews at FAANG companies",
     createdAt: new Date(),
-    updatedAt: new Date()
-  }
+    updatedAt: new Date(),
+  },
 ];
 
 // Mock mentee data for display
-const MOCK_MENTEE_INFO: Record<string, { name: string; role?: string; photo?: string }> = {
-  '1': { name: 'Sarah Ahmed', role: 'Computer Science Student' },
-  '2': { name: 'Omar Khan', role: 'Mid-level Software Engineer' },
-  '3': { name: 'Aisha Patel', role: 'Junior Developer' }
+const MOCK_MENTEE_INFO: Record<
+  string,
+  { name: string; role?: string; photo?: string }
+> = {
+  "1": { name: "Sarah Ahmed", role: "Computer Science Student" },
+  "2": { name: "Omar Khan", role: "Mid-level Software Engineer" },
+  "3": { name: "Aisha Patel", role: "Junior Developer" },
 };
 
 export default function MentorDashboard() {
+  const navigate = useNavigate();
+  const auth = getAuth();
+  console.log("Auth in MentorDashboard:", auth);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/register");
+      }
+    });
+    return () => unsubscribe();
+  }, [auth, navigate]);
+
+  const user = auth.currentUser;
+  if (!user) {
+    return null; // Or a loading state
+  }
+
+  const firstName = user.displayName?.split(" ")[0] || "Mentor";
   const [meetings, setMeetings] = useState(MOCK_MEETINGS);
 
-  const pendingMeetings = meetings.filter((m) => m.status === 'pending');
+  const pendingMeetings = meetings.filter((m) => m.status === "pending");
 
   const upcomingMeetings = meetings
-    .filter((m) => m.status === 'confirmed' && new Date(m.scheduledDate) >= new Date())
-    .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
+    .filter(
+      (m) => m.status === "confirmed" && new Date(m.scheduledDate) >= new Date()
+    )
+    .sort(
+      (a, b) =>
+        new Date(a.scheduledDate).getTime() -
+        new Date(b.scheduledDate).getTime()
+    );
 
   const pastMeetings = meetings
-    .filter((m) => m.status === 'completed' || new Date(m.scheduledDate) < new Date())
-    .sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime());
+    .filter(
+      (m) => m.status === "completed" || new Date(m.scheduledDate) < new Date()
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.scheduledDate).getTime() -
+        new Date(a.scheduledDate).getTime()
+    );
 
   const handleApproveMeeting = async (meetingId: string) => {
     // TODO: Update meeting status in Firebase
@@ -79,8 +114,8 @@ export default function MentorDashboard() {
         m.id === meetingId
           ? {
               ...m,
-              status: 'confirmed',
-              meetingLink: 'https://meet.google.com/generated-link'
+              status: "confirmed",
+              meetingLink: "https://meet.google.com/generated-link",
             }
           : m
       )
@@ -89,7 +124,11 @@ export default function MentorDashboard() {
 
   const handleDeclineMeeting = async (meetingId: string) => {
     // TODO: Update meeting status in Firebase
-    setMeetings(meetings.map((m) => (m.id === meetingId ? { ...m, status: 'cancelled' } : m)));
+    setMeetings(
+      meetings.map((m) =>
+        m.id === meetingId ? { ...m, status: "cancelled" } : m
+      )
+    );
   };
 
   return (
@@ -100,7 +139,7 @@ export default function MentorDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                Mentor Dashboard
+                Hello {firstName}!
               </h1>
               <p className="text-slate-600 dark:text-slate-400">
                 Manage your mentoring sessions and help others grow
@@ -108,7 +147,12 @@ export default function MentorDashboard() {
             </div>
             <Link to="/mentor/profile-setup">
               <Button variant="outline">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -139,7 +183,9 @@ export default function MentorDashboard() {
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
                     Pending Requests
                   </p>
-                  <p className="text-3xl font-bold text-amber-600">{pendingMeetings.length}</p>
+                  <p className="text-3xl font-bold text-amber-600">
+                    {pendingMeetings.length}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-lg flex items-center justify-center">
                   <svg
@@ -167,7 +213,9 @@ export default function MentorDashboard() {
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
                     Upcoming Sessions
                   </p>
-                  <p className="text-3xl font-bold text-emerald-600">{upcomingMeetings.length}</p>
+                  <p className="text-3xl font-bold text-emerald-600">
+                    {upcomingMeetings.length}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center">
                   <svg
@@ -195,7 +243,9 @@ export default function MentorDashboard() {
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
                     Total Mentored
                   </p>
-                  <p className="text-3xl font-bold text-blue-600">{pastMeetings.length + upcomingMeetings.length}</p>
+                  <p className="text-3xl font-bold text-blue-600">
+                    {pastMeetings.length + upcomingMeetings.length}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
                   <svg
@@ -224,7 +274,9 @@ export default function MentorDashboard() {
               <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
                 Pending Requests
               </h2>
-              <Badge variant="warning">{pendingMeetings.length} awaiting response</Badge>
+              <Badge variant="warning">
+                {pendingMeetings.length} awaiting response
+              </Badge>
             </div>
             <div className="space-y-4">
               {pendingMeetings.map((meeting) => (
@@ -306,22 +358,26 @@ interface MentorMeetingCardProps {
   onDecline?: (meetingId: string) => void;
 }
 
-function MentorMeetingCard({ meeting, onApprove, onDecline }: MentorMeetingCardProps) {
+function MentorMeetingCard({
+  meeting,
+  onApprove,
+  onDecline,
+}: MentorMeetingCardProps) {
   const menteeInfo = MOCK_MENTEE_INFO[meeting.menteeId];
-  const isPending = meeting.status === 'pending';
+  const isPending = meeting.status === "pending";
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'confirmed':
-        return 'success';
-      case 'pending':
-        return 'warning';
-      case 'completed':
-        return 'info';
-      case 'cancelled':
-        return 'danger';
+      case "confirmed":
+        return "success";
+      case "pending":
+        return "warning";
+      case "completed":
+        return "info";
+      case "cancelled":
+        return "danger";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -338,7 +394,9 @@ function MentorMeetingCard({ meeting, onApprove, onDecline }: MentorMeetingCardP
                   {menteeInfo.name}
                 </h3>
                 {menteeInfo.role && (
-                  <p className="text-sm text-slate-600 dark:text-slate-400">{menteeInfo.role}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    {menteeInfo.role}
+                  </p>
                 )}
               </div>
               <Badge variant={getStatusBadgeVariant(meeting.status)}>
@@ -348,7 +406,12 @@ function MentorMeetingCard({ meeting, onApprove, onDecline }: MentorMeetingCardP
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -356,16 +419,21 @@ function MentorMeetingCard({ meeting, onApprove, onDecline }: MentorMeetingCardP
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                {new Date(meeting.scheduledDate).toLocaleDateString('en-US', {
-                  weekday: 'short',
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
+                {new Date(meeting.scheduledDate).toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
                 })}
               </div>
 
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -377,7 +445,12 @@ function MentorMeetingCard({ meeting, onApprove, onDecline }: MentorMeetingCardP
               </div>
 
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -392,7 +465,9 @@ function MentorMeetingCard({ meeting, onApprove, onDecline }: MentorMeetingCardP
             {meeting.menteeNotes && (
               <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3 mb-3">
                 <p className="text-sm text-slate-700 dark:text-slate-300">
-                  <strong className="text-slate-900 dark:text-slate-100">Mentee notes:</strong>{' '}
+                  <strong className="text-slate-900 dark:text-slate-100">
+                    Mentee notes:
+                  </strong>{" "}
                   {meeting.menteeNotes}
                 </p>
               </div>
@@ -417,7 +492,11 @@ function MentorMeetingCard({ meeting, onApprove, onDecline }: MentorMeetingCardP
                     </svg>
                     Approve
                   </Button>
-                  <Button size="sm" variant="danger" onClick={() => onDecline(meeting.id)}>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => onDecline(meeting.id)}
+                  >
                     <svg
                       className="w-4 h-4 mr-2"
                       fill="none"
@@ -434,8 +513,12 @@ function MentorMeetingCard({ meeting, onApprove, onDecline }: MentorMeetingCardP
                     Decline
                   </Button>
                 </>
-              ) : meeting.status === 'confirmed' && meeting.meetingLink ? (
-                <a href={meeting.meetingLink} target="_blank" rel="noopener noreferrer">
+              ) : meeting.status === "confirmed" && meeting.meetingLink ? (
+                <a
+                  href={meeting.meetingLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Button size="sm">
                     <svg
                       className="w-4 h-4 mr-2"
@@ -455,7 +538,7 @@ function MentorMeetingCard({ meeting, onApprove, onDecline }: MentorMeetingCardP
                 </a>
               ) : null}
 
-              {meeting.status === 'confirmed' && (
+              {meeting.status === "confirmed" && (
                 <Button size="sm" variant="outline">
                   Add Notes
                 </Button>
