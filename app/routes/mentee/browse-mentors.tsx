@@ -17,7 +17,6 @@ async function fetchMentors(): Promise<Mentor[]> {
   querySnapshot.forEach((doc) => {
     mentors.push(doc.data() as Mentor);
   });
-  console.log("Fetched mentors:", mentors);
   return mentors;
 }
 
