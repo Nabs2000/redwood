@@ -135,6 +135,8 @@ export default function Register() {
           updatedAt: new Date(),
           userType: selectedOption,
           registrationComplete: false, // Will be set to true after profile setup
+          pendingRequests: [],
+          upcomingSessions: [],
         });
         // Redirect to mentor profile setup
         navigate("/mentor/profile-setup");
