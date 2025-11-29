@@ -4,7 +4,9 @@ import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Textarea } from "~/components/ui/Textarea";
 import { Select } from "~/components/ui/Select";
+import { db } from "~/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 import {
   type WeeklyAvailability,
@@ -103,7 +105,16 @@ export default function MentorProfileSetup() {
     try {
       // TODO: Save profile to Firebase
       console.log("Saving profile...", { profile, availability, services });
-
+      await setDoc(
+        doc(db, "mentors", auth.currentUser!.uid),
+        {
+          ...profile,
+          availability,
+          services,
+          registrationComplete: true,
+        },
+        { merge: true }
+      );
       // Navigate to mentor dashboard
       navigate("/mentor/dashboard");
     } catch (error) {
