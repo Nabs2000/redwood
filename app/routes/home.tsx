@@ -28,7 +28,7 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                  Mozlem Mentorz
+                  Redwood
                 </h1>
                 <p className="text-xs text-slate-600 dark:text-slate-400">
                   Community Career Guidance
