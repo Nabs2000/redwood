@@ -329,7 +329,7 @@ export default function Register() {
                         </div>
                         <div className="flex-1">
                           <div className="font-semibold text-slate-900 dark:text-slate-100">
-                            Find a Mentor
+                            Become a Mentee
                           </div>
                           <div className="text-sm text-slate-600 dark:text-slate-400">
                             Get career guidance, referrals, and interview prep
