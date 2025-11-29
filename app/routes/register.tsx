@@ -6,6 +6,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
+import { Textarea } from "~/components/ui/Textarea";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
@@ -24,6 +25,7 @@ export default function Register() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [bio, setBio] = useState("");
   const [company, setCompany] = useState("");
   const [selectedOption, setSelectedOption] = useState<"Mentee" | "Mentor">(
     "Mentee"
@@ -115,6 +117,7 @@ export default function Register() {
           lastName: lastName,
           email: email,
           phoneNumber: phoneNumber,
+          bio: bio,
           interestedIndustries: [],
           interestedRoles: [],
           createdAt: new Date(),
@@ -413,6 +416,17 @@ export default function Register() {
                     placeholder="Your current company"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
+                    required
+                  />
+                )}
+
+                {selectedOption === "Mentee" && (
+                  <Textarea
+                    label="Bio"
+                    placeholder="Tell us a bit about yourself."
+                    rows={5}
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
                     required
                   />
                 )}
