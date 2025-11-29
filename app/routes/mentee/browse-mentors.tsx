@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -17,6 +17,7 @@ async function fetchMentors(): Promise<Mentor[]> {
   querySnapshot.forEach((doc) => {
     mentors.push(doc.data() as Mentor);
   });
+  console.log("Fetched mentors:", mentors);
   return mentors;
 }
 
@@ -24,6 +25,11 @@ export default function BrowseMentors() {
   const [searchQuery, setSearchQuery] = useState("");
   const [industryFilter, setIndustryFilter] = useState("");
   const [mentors, setMentors] = useState<Mentor[]>([]);
+
+  // Load mentors from Firebase on component mount
+  useEffect(() => {
+    fetchMentors().then((data) => setMentors(data));
+  }, []);
 
   const industries = [
     { value: "", label: "All Industries" },
