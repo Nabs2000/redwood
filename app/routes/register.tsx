@@ -90,7 +90,10 @@ export default function Register() {
     e.preventDefault();
 
     // Validation
-    if (!firstName || !lastName || !bio) {
+    if (
+      (selectedOption === "Mentee" && (!firstName || !lastName || !bio)) ||
+      (selectedOption === "Mentor" && (!firstName || !lastName || !company))
+    ) {
       setError("Please fill in all required fields");
       return;
     }
