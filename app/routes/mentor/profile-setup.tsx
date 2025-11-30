@@ -217,7 +217,7 @@ export default function MentorProfileSetup() {
 
                 <Textarea
                   label="Bio"
-                  placeholder="Tell mentees about your background and what you can help with..."
+                  placeholder="Tell mentees about your background and what you can help with!"
                   rows={5}
                   value={profile.bio}
                   onChange={(e) =>
@@ -264,7 +264,7 @@ export default function MentorProfileSetup() {
                 </div>
 
                 <Input
-                  label="LinkedIn URL (optional)"
+                  label="LinkedIn URL"
                   type="url"
                   placeholder="https://linkedin.com/in/yourprofile"
                   value={profile.linkedInUrl}
