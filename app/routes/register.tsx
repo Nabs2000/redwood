@@ -461,7 +461,9 @@ export default function Register() {
                   className="w-full"
                   size="lg"
                 >
-                  Complete Registration
+                  {selectedOption === "Mentee"
+                    ? "Complete Registration"
+                    : "Continue Registration"}
                 </Button>
               </form>
             )}
