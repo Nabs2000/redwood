@@ -398,16 +398,6 @@ export default function Register() {
                   />
                 </div>
 
-                {/* Phone Number */}
-                <Input
-                  label="Phone Number"
-                  type="tel"
-                  placeholder="(555) 123-4567"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  required
-                />
-
                 {/* Company (only for mentors) */}
                 {selectedOption === "Mentor" && (
                   <Input
