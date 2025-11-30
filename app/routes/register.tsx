@@ -24,7 +24,6 @@ export default function Register() {
   const [accountExists, setAccountExists] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [bio, setBio] = useState("");
   const [company, setCompany] = useState("");
   const [selectedOption, setSelectedOption] = useState<"Mentee" | "Mentor">(
@@ -91,7 +90,7 @@ export default function Register() {
     e.preventDefault();
 
     // Validation
-    if (!firstName || !lastName || !phoneNumber) {
+    if (!firstName || !lastName || !bio) {
       setError("Please fill in all required fields");
       return;
     }
@@ -116,7 +115,6 @@ export default function Register() {
           firstName: firstName,
           lastName: lastName,
           email: email,
-          phoneNumber: phoneNumber,
           bio: bio,
           interestedIndustries: [],
           interestedRoles: [],
@@ -132,7 +130,6 @@ export default function Register() {
           firstName: firstName,
           lastName: lastName,
           email: email,
-          phoneNumber: phoneNumber,
           company: company,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -413,7 +410,7 @@ export default function Register() {
                 {selectedOption === "Mentee" && (
                   <Textarea
                     label="Bio"
-                    placeholder="Tell us a bit about yourself."
+                    placeholder="Tell us a bit about yourself!"
                     rows={5}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
