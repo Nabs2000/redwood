@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 import { Avatar } from "~/components/ui/Avatar";
 import { Badge } from "~/components/ui/Badge";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
 import { ServiceTypeLabels } from "~/types/mentor.types";
 
@@ -65,9 +65,9 @@ const MOCK_MENTEE_INFO: Record<
 };
 
 export default function MentorDashboard() {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const auth = getAuth();
-  console.log("Auth in MentorDashboard:", auth);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -80,6 +80,18 @@ export default function MentorDashboard() {
   const user = auth.currentUser;
   if (!user) {
     return null; // Or a loading state
+  }
+
+  async function handleLogout() {
+    try {
+      await signOut(auth);
+      console.log("User signed out successfully");
+      navigate("/register");
+      // Sign-out successful.
+    } catch (error) {
+      // An error happened
+      console.error("Error signing out:", error);
+    }
   }
 
   const firstName = user.displayName?.split(" ")[0] || "Mentor";
@@ -169,6 +181,9 @@ export default function MentorDashboard() {
                 Edit Profile
               </Button>
             </Link>
+            <Button variant="outline" onClick={handleLogout}>
+              Logout
+            </Button>
           </div>
         </div>
       </div>
