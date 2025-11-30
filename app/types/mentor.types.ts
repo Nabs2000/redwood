@@ -5,7 +5,6 @@ export interface Mentor {
   firstName: string;
   lastName: string;
   email: string;
-  phoneNumber: string;
   company: string;
   registrationComplete: boolean;
   mentoredCount: number;
@@ -28,7 +27,7 @@ export interface Mentor {
   timezone: string; // e.g., "America/New_York"
 
   // Services offered
-  servicesOffered: ServiceType[];
+  services: ServiceType[];
 
   // Settings
   isActive: boolean; // Whether accepting new mentees
