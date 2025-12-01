@@ -58,26 +58,46 @@ const MOCK_MENTOR_INFO: Record<
   },
 };
 
+const auth = getAuth();
+
 export default function MenteeDashboard() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const auth = getAuth();
+  const [pendingRequestsCount, setPendingRequestsCount] = useState<number>(0);
+  const [upcomingSessionsCount, setUpcomingSessionsCount] = useState<number>(0);
+  const [completedSessionsCount, setCompletedSessionsCount] =
+    useState<number>(0);
+
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
         const uid = user.uid;
         console.log("User is signed in with UID:", uid);
         setFirstName(user.displayName?.split(" ")[0] || "");
         setLastName(user.displayName?.split(" ")[1] || "");
+
+        // Load data only after confirming user is authenticated
+        try {
+          const docSnap = await getDoc(doc(db, "mentees", uid));
+          if (!docSnap.exists()) {
+            console.log("No such document!");
+            return;
+          }
+          const data = docSnap.data();
+          setPendingRequestsCount(data.pendingRequests.length);
+          setUpcomingSessionsCount(data.upcomingSessions.length);
+          setCompletedSessionsCount(data.completedSessions.length);
+        } catch (error) {
+          console.error("Error loading mentee data:", error);
+        }
       } else {
-        // User is signed out
-        // ...
         console.log("User is signed out");
       }
     });
+
+    return () => unsubscribe();
   }, []);
+
   const upcomingMeetings = MOCK_MEETINGS.filter(
     (m) => m.status === "confirmed" && new Date(m.scheduledDate) >= new Date()
   ).sort(
@@ -141,7 +161,7 @@ export default function MenteeDashboard() {
                     Upcoming
                   </p>
                   <p className="text-3xl font-bold text-emerald-600">
-                    {upcomingMeetings.length}
+                    {upcomingSessionsCount}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center">
@@ -171,7 +191,7 @@ export default function MenteeDashboard() {
                     Pending
                   </p>
                   <p className="text-3xl font-bold text-amber-600">
-                    {pendingMeetings.length}
+                    {pendingRequestsCount}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-lg flex items-center justify-center">
@@ -201,7 +221,7 @@ export default function MenteeDashboard() {
                     Completed
                   </p>
                   <p className="text-3xl font-bold text-blue-600">
-                    {pastMeetings.length}
+                    {completedSessionsCount}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">

@@ -5,6 +5,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 import { Avatar } from "~/components/ui/Avatar";
 import { Badge } from "~/components/ui/Badge";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "~/firebase";
 import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
 import { ServiceTypeLabels } from "~/types/mentor.types";
 
@@ -64,18 +66,44 @@ const MOCK_MENTEE_INFO: Record<
   "3": { name: "Aisha Patel", role: "Junior Developer" },
 };
 
+const auth = getAuth();
+
 export default function MentorDashboard() {
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState<number>(0);
+  const [upcomingSessionsCount, setUpcomingSessionsCount] = useState<number>(0);
+  const [completedSessionsCount, setCompletedSessionsCount] =
+    useState<number>(0);
   const navigate = useNavigate();
   const auth = getAuth();
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        navigate("/register");
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const uid = user.uid;
+        console.log("User is signed in with UID:", uid);
+
+        // Load data only after confirming user is authenticated
+        try {
+          const docSnap = await getDoc(doc(db, "mentors", uid));
+          if (!docSnap.exists()) {
+            console.log("No such document!");
+            return;
+          }
+          const data = docSnap.data();
+          setPendingRequestsCount(data.pendingRequests.length);
+          setUpcomingSessionsCount(data.upcomingSessions.length);
+          setCompletedSessionsCount(data.completedSessions.length);
+        } catch (error) {
+          console.error("Error loading mentee data:", error);
+        }
+      } else {
+        console.log("User is signed out");
       }
     });
+
     return () => unsubscribe();
-  }, [auth, navigate]);
+  }, []);
 
   const user = auth.currentUser;
   if (!user) {
