@@ -9,7 +9,8 @@ import { Badge } from "~/components/ui/Badge";
 import { Calendar } from "~/components/calendar/Calendar";
 import { TimeSlotPicker } from "~/components/calendar/TimeSlotPicker";
 import { db } from "~/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import {
   type Mentor,
   type ServiceType,
@@ -84,10 +85,20 @@ export default function BookMeeting() {
       .then((data) => setMentor(data))
       .catch((error) => {
         console.error("Error fetching mentor:", error);
-        alert("Failed to load mentor data. Please try again.");
         navigate("/mentee/browse-mentors");
       });
   }, [mentorId, navigate]);
+
+  const auth = getAuth();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/register");
+      }
+    });
+    return () => unsubscribe();
+  }, [auth, navigate]);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -160,6 +171,26 @@ export default function BookMeeting() {
 
       console.log("Creating meeting:", meetingData);
 
+      // Save pending request to mentee's record
+      if (!auth.currentUser) {
+        navigate("/register");
+        return;
+      }
+      console.log("Saving to mentees doc...");
+      const menteeDoc = doc(db, "mentees", auth.currentUser.uid);
+      await updateDoc(menteeDoc, {
+        // Add meeting request data here
+        pendingRequests: arrayUnion(meetingData),
+      });
+      console.log("Saved to mentees doc.");
+      // Save pending request to mentor's record
+      console.log("Saving to mentors doc...");
+      const mentorDoc = doc(db, "mentors", mentor.id);
+      await updateDoc(mentorDoc, {
+        // Add meeting request data here
+        pendingRequests: arrayUnion(meetingData),
+      });
+      console.log("Saved to mentors doc.");
       // Navigate to mentee dashboard
       navigate("/mentee/dashboard");
     } catch (error) {
