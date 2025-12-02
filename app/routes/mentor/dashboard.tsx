@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 import { Avatar } from "~/components/ui/Avatar";
 import { Badge } from "~/components/ui/Badge";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDocs, query } from "firebase/firestore";
 import { db } from "~/firebase";
 import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
 import { ServiceTypeLabels } from "~/types/mentor.types";
@@ -70,10 +70,7 @@ const auth = getAuth();
 
 export default function MentorDashboard() {
   const [isLoading, setIsLoading] = useState(false);
-  const [pendingRequestsCount, setPendingRequestsCount] = useState<number>(0);
-  const [upcomingSessionsCount, setUpcomingSessionsCount] = useState<number>(0);
-  const [completedSessionsCount, setCompletedSessionsCount] =
-    useState<number>(0);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
   const navigate = useNavigate();
   const auth = getAuth();
 
@@ -85,15 +82,17 @@ export default function MentorDashboard() {
 
         // Load data only after confirming user is authenticated
         try {
-          const docSnap = await getDoc(doc(db, "mentors", uid));
-          if (!docSnap.exists()) {
-            console.log("No such document!");
+          const querySnap = await getDocs(collection(db, "meetings"));
+          if (!querySnap.empty) {
+            console.log("No such collection!");
             return;
           }
-          const data = docSnap.data();
-          setPendingRequestsCount(data.pendingRequests.length);
-          setUpcomingSessionsCount(data.upcomingSessions.length);
-          setCompletedSessionsCount(data.completedSessions.length);
+          const data = querySnap.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Meeting[];
+          setMeetings(data);
+          console.log("Loaded mentee data:", data);
         } catch (error) {
           console.error("Error loading mentee data:", error);
         }
@@ -123,7 +122,6 @@ export default function MentorDashboard() {
   }
 
   const firstName = user.displayName?.split(" ")[0] || "Mentor";
-  const [meetings, setMeetings] = useState(MOCK_MEETINGS);
 
   const pendingMeetings = meetings.filter((m) => m.status === "pending");
 
@@ -227,7 +225,7 @@ export default function MentorDashboard() {
                     Pending Requests
                   </p>
                   <p className="text-3xl font-bold text-amber-600">
-                    {pendingMeetings.length}
+                    {meetings.filter((m) => m.status === "pending").length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-lg flex items-center justify-center">
@@ -257,7 +255,7 @@ export default function MentorDashboard() {
                     Upcoming Sessions
                   </p>
                   <p className="text-3xl font-bold text-emerald-600">
-                    {upcomingMeetings.length}
+                    {meetings.filter((m) => m.status === "confirmed").length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center">
@@ -287,7 +285,7 @@ export default function MentorDashboard() {
                     Total Mentored
                   </p>
                   <p className="text-3xl font-bold text-blue-600">
-                    {pastMeetings.length + upcomingMeetings.length}
+                    {meetings.filter((m) => m.status === "completed").length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">

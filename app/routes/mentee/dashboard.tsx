@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "~/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { Button } from "~/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 import { Avatar } from "~/components/ui/Avatar";
@@ -63,10 +63,7 @@ const auth = getAuth();
 export default function MenteeDashboard() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [pendingRequestsCount, setPendingRequestsCount] = useState<number>(0);
-  const [upcomingSessionsCount, setUpcomingSessionsCount] = useState<number>(0);
-  const [completedSessionsCount, setCompletedSessionsCount] =
-    useState<number>(0);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -76,17 +73,35 @@ export default function MenteeDashboard() {
         setFirstName(user.displayName?.split(" ")[0] || "");
         setLastName(user.displayName?.split(" ")[1] || "");
 
-        // Load data only after confirming user is authenticated
+        // Get docs from meeting collection where menteeId == uid
         try {
-          const docSnap = await getDoc(doc(db, "mentees", uid));
-          if (!docSnap.exists()) {
+          const collectionRef = collection(db, "meetings");
+          const querySnapshot = await getDocs(collectionRef);
+          if (querySnapshot.empty) {
             console.log("No such document!");
             return;
           }
-          const data = docSnap.data();
-          setPendingRequestsCount(data.pendingRequests.length);
-          setUpcomingSessionsCount(data.upcomingSessions.length);
-          setCompletedSessionsCount(data.completedSessions.length);
+          const meetingsData: Meeting[] = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.menteeId === uid) {
+              meetingsData.push({
+                id: doc.id,
+                mentorId: data.mentorId,
+                menteeId: data.menteeId,
+                type: data.type,
+                scheduledDate: data.scheduledDate.toDate(),
+                scheduledTime: data.scheduledTime,
+                durationMinutes: data.durationMinutes,
+                status: data.status,
+                meetingLink: data.meetingLink,
+                menteeNotes: data.menteeNotes,
+                createdAt: data.createdAt.toDate(),
+                updatedAt: data.updatedAt.toDate(),
+              });
+            }
+          });
+          setMeetings(meetingsData);
         } catch (error) {
           console.error("Error loading mentee data:", error);
         }
@@ -161,7 +176,7 @@ export default function MenteeDashboard() {
                     Upcoming
                   </p>
                   <p className="text-3xl font-bold text-emerald-600">
-                    {upcomingSessionsCount}
+                    {meetings.filter((m) => m.status === "confirmed").length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center">
@@ -191,7 +206,7 @@ export default function MenteeDashboard() {
                     Pending
                   </p>
                   <p className="text-3xl font-bold text-amber-600">
-                    {pendingRequestsCount}
+                    {meetings.filter((m) => m.status === "pending").length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-lg flex items-center justify-center">
@@ -221,7 +236,7 @@ export default function MenteeDashboard() {
                     Completed
                   </p>
                   <p className="text-3xl font-bold text-blue-600">
-                    {completedSessionsCount}
+                    {meetings.filter((m) => m.status === "completed").length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
