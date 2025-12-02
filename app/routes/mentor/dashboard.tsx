@@ -91,7 +91,7 @@ export default function MentorDashboard() {
             id: doc.id,
             ...doc.data(),
           })) as Meeting[];
-          setMeetings(data);
+          setMeetings(data.filter((m) => m.mentorId === uid));
           console.log("Loaded mentee data:", data);
         } catch (error) {
           console.error("Error loading mentee data:", error);
