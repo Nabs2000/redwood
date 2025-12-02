@@ -1,5 +1,4 @@
-import { type PendingRequest } from "./pendingRequest.types";
-import { type UpcomingSession } from "./upcomingSession.types";
+import { type Meeting } from "./meeting.types";
 export interface Mentor {
   id: string;
   firstName: string;
@@ -8,8 +7,8 @@ export interface Mentor {
   company: string;
   registrationComplete: boolean;
   mentoredCount: number;
-  pendingRequests: PendingRequest[];
-  upcomingSessions: UpcomingSession[];
+  pendingRequests: Meeting[];
+  upcomingSessions: Meeting[];
 
   // Profile information
   title: string; // e.g., "Senior Software Engineer", "Marketing Director"

@@ -22,9 +22,6 @@ export interface Meeting {
   menteeNotes?: string; // What the mentee wants to discuss
   mentorNotes?: string; // Mentor's notes after the meeting
 
-  // Service request details (for referrals, resume reviews, etc.)
-  serviceRequest?: ServiceRequest;
-
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
