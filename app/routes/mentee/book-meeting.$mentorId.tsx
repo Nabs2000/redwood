@@ -10,7 +10,7 @@ import { Calendar } from "~/components/calendar/Calendar";
 import { TimeSlotPicker } from "~/components/calendar/TimeSlotPicker";
 import { db } from "~/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, collection, getDoc, addDoc } from "firebase/firestore";
 import {
   type Mentor,
   type ServiceType,
@@ -158,15 +158,23 @@ export default function BookMeeting() {
     }
 
     setIsLoading(true);
+    if (!auth.currentUser) {
+      navigate("/register");
+      return;
+    }
     try {
       // TODO: Create meeting in Firebase
       const meetingData = {
         mentorId: mentor.id,
+        menteeId: auth.currentUser.uid,
+        type: selectedService,
         scheduledDate: selectedDate,
         scheduledTime: selectedTime,
-        type: selectedService,
+        durationMinutes: 30,
         menteeNotes: notes,
         status: "pending",
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       console.log("Creating meeting:", meetingData);
@@ -176,22 +184,13 @@ export default function BookMeeting() {
         navigate("/register");
         return;
       }
-      console.log("Saving to mentees doc...");
-      const menteeDoc = doc(db, "mentees", auth.currentUser.uid);
-      await updateDoc(menteeDoc, {
-        // Add meeting request data here
-        pendingRequests: arrayUnion(meetingData),
+      console.log("Saving to meetings collection...");
+      const meetingDoc = collection(db, "meetings");
+      await addDoc(meetingDoc, {
+        ...meetingData,
       });
-      console.log("Saved to mentees doc.");
-      // Save pending request to mentor's record
-      console.log("Saving to mentors doc...");
-      const mentorDoc = doc(db, "mentors", mentor.id);
-      await updateDoc(mentorDoc, {
-        // Add meeting request data here
-        pendingRequests: arrayUnion(meetingData),
-      });
-      console.log("Saved to mentors doc.");
-      // Navigate to mentee dashboard
+      console.log("Saved to meetings collection.");
+
       navigate("/mentee/dashboard");
     } catch (error) {
       console.error("Error booking meeting:", error);
