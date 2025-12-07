@@ -11,52 +11,52 @@ import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
 import { ServiceTypeLabels } from "~/types/mentor.types";
 
 // TODO: Replace with actual data from Firebase
-const MOCK_MEETINGS: Meeting[] = [
-  {
-    id: "1",
-    mentorId: "1",
-    menteeId: "current-user",
-    type: "initial-consultation",
-    scheduledDate: new Date(2025, 10, 25),
-    scheduledTime: "14:00",
-    durationMinutes: 30,
-    status: "confirmed",
-    meetingLink: "https://meet.google.com/abc-defg-hij",
-    menteeNotes: "Looking to break into software engineering",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "2",
-    mentorId: "2",
-    menteeId: "current-user",
-    type: "resume-review",
-    scheduledDate: new Date(2025, 10, 28),
-    scheduledTime: "16:00",
-    durationMinutes: 30,
-    status: "pending",
-    menteeNotes: "Need help with my resume for product manager roles",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+// const MOCK_MEETINGS: Meeting[] = [
+//   {
+//     id: "1",
+//     mentorId: "1",
+//     menteeId: "current-user",
+//     type: "initial-consultation",
+//     scheduledDate: new Date(2025, 10, 25),
+//     scheduledTime: "14:00",
+//     durationMinutes: 30,
+//     status: "confirmed",
+//     meetingLink: "https://meet.google.com/abc-defg-hij",
+//     menteeNotes: "Looking to break into software engineering",
+//     createdAt: new Date(),
+//     updatedAt: new Date(),
+//   },
+//   {
+//     id: "2",
+//     mentorId: "2",
+//     menteeId: "current-user",
+//     type: "resume-review",
+//     scheduledDate: new Date(2025, 10, 28),
+//     scheduledTime: "16:00",
+//     durationMinutes: 30,
+//     status: "pending",
+//     menteeNotes: "Need help with my resume for product manager roles",
+//     createdAt: new Date(),
+//     updatedAt: new Date(),
+//   },
+// ];
 
-// Mock mentor data for display
-const MOCK_MENTOR_INFO: Record<
-  string,
-  { name: string; title: string; company: string; photo?: string }
-> = {
-  "1": {
-    name: "Ahmed Rahman",
-    title: "Senior Software Engineer",
-    company: "Tech Corp",
-  },
-  "2": {
-    name: "Fatima Hassan",
-    title: "Product Manager",
-    company: "Healthcare Solutions",
-  },
-};
+// // Mock mentor data for display
+// const MOCK_MENTOR_INFO: Record<
+//   string,
+//   { name: string; title: string; company: string; photo?: string }
+// > = {
+//   "1": {
+//     name: "Ahmed Rahman",
+//     title: "Senior Software Engineer",
+//     company: "Tech Corp",
+//   },
+//   "2": {
+//     name: "Fatima Hassan",
+//     title: "Product Manager",
+//     company: "Healthcare Solutions",
+//   },
+// };
 
 const auth = getAuth();
 
