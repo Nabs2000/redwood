@@ -2,61 +2,62 @@ import { Link } from "react-router";
 import { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "~/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { Button } from "~/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 import { Avatar } from "~/components/ui/Avatar";
 import { Badge } from "~/components/ui/Badge";
 import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
+import { type Mentor } from "~/types/mentor.types";
 import { ServiceTypeLabels } from "~/types/mentor.types";
 
 // TODO: Replace with actual data from Firebase
-// const MOCK_MEETINGS: Meeting[] = [
-//   {
-//     id: "1",
-//     mentorId: "1",
-//     menteeId: "current-user",
-//     type: "initial-consultation",
-//     scheduledDate: new Date(2025, 10, 25),
-//     scheduledTime: "14:00",
-//     durationMinutes: 30,
-//     status: "confirmed",
-//     meetingLink: "https://meet.google.com/abc-defg-hij",
-//     menteeNotes: "Looking to break into software engineering",
-//     createdAt: new Date(),
-//     updatedAt: new Date(),
-//   },
-//   {
-//     id: "2",
-//     mentorId: "2",
-//     menteeId: "current-user",
-//     type: "resume-review",
-//     scheduledDate: new Date(2025, 10, 28),
-//     scheduledTime: "16:00",
-//     durationMinutes: 30,
-//     status: "pending",
-//     menteeNotes: "Need help with my resume for product manager roles",
-//     createdAt: new Date(),
-//     updatedAt: new Date(),
-//   },
-// ];
+const MOCK_MEETINGS: Meeting[] = [
+  {
+    id: "1",
+    mentorId: "1",
+    menteeId: "current-user",
+    type: "initial-consultation",
+    scheduledDate: new Date(2025, 10, 25),
+    scheduledTime: "14:00",
+    durationMinutes: 30,
+    status: "confirmed",
+    meetingLink: "https://meet.google.com/abc-defg-hij",
+    menteeNotes: "Looking to break into software engineering",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "2",
+    mentorId: "2",
+    menteeId: "current-user",
+    type: "resume-review",
+    scheduledDate: new Date(2025, 10, 28),
+    scheduledTime: "16:00",
+    durationMinutes: 30,
+    status: "pending",
+    menteeNotes: "Need help with my resume for product manager roles",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
 
-// // Mock mentor data for display
-// const MOCK_MENTOR_INFO: Record<
-//   string,
-//   { name: string; title: string; company: string; photo?: string }
-// > = {
-//   "1": {
-//     name: "Ahmed Rahman",
-//     title: "Senior Software Engineer",
-//     company: "Tech Corp",
-//   },
-//   "2": {
-//     name: "Fatima Hassan",
-//     title: "Product Manager",
-//     company: "Healthcare Solutions",
-//   },
-// };
+// Mock mentor data for display
+const MOCK_MENTOR_INFO: Record<
+  string,
+  { name: string; title: string; company: string; photo?: string }
+> = {
+  "1": {
+    name: "Ahmed Rahman",
+    title: "Senior Software Engineer",
+    company: "Tech Corp",
+  },
+  "2": {
+    name: "Fatima Hassan",
+    title: "Product Manager",
+    company: "Healthcare Solutions",
+  },
+};
 
 const auth = getAuth();
 
@@ -64,6 +65,7 @@ export default function MenteeDashboard() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [mentors, setMentors] = useState<Mentor[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -102,6 +104,21 @@ export default function MenteeDashboard() {
             }
           });
           setMeetings(meetingsData);
+
+          // Fetch mentors data
+          meetingsData.map(async (meeting) => {
+            const mentorDocRef = doc(db, "mentors", meeting.mentorId);
+            const mentorDoc = await getDoc(mentorDocRef);
+            if (mentorDoc.exists()) {
+              const mentorData = mentorDoc.data() as Mentor;
+              setMentors((prev) => [
+                ...prev,
+                { id: mentorDoc.id, ...(mentorData as Omit<Mentor, "id">) },
+              ]);
+            }
+          });
+
+          // Render
         } catch (error) {
           console.error("Error loading mentee data:", error);
         }
@@ -113,21 +130,27 @@ export default function MenteeDashboard() {
     return () => unsubscribe();
   }, []);
 
-  const upcomingMeetings = MOCK_MEETINGS.filter(
-    (m) => m.status === "confirmed" && new Date(m.scheduledDate) >= new Date()
-  ).sort(
-    (a, b) =>
-      new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
-  );
+  const upcomingMeetings = meetings
+    .filter(
+      (m) => m.status === "confirmed" && new Date(m.scheduledDate) >= new Date()
+    )
+    .sort(
+      (a, b) =>
+        new Date(a.scheduledDate).getTime() -
+        new Date(b.scheduledDate).getTime()
+    );
 
-  const pendingMeetings = MOCK_MEETINGS.filter((m) => m.status === "pending");
+  const pendingMeetings = meetings.filter((m) => m.status === "pending");
 
-  const pastMeetings = MOCK_MEETINGS.filter(
-    (m) => m.status === "completed" || new Date(m.scheduledDate) < new Date()
-  ).sort(
-    (a, b) =>
-      new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime()
-  );
+  const pastMeetings = meetings
+    .filter(
+      (m) => m.status === "completed" || new Date(m.scheduledDate) < new Date()
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.scheduledDate).getTime() -
+        new Date(a.scheduledDate).getTime()
+    );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 dark:from-slate-900 dark:to-slate-800">
@@ -332,8 +355,13 @@ export default function MenteeDashboard() {
   );
 }
 
-function MeetingCard({ meeting }: { meeting: Meeting }) {
-  const mentorInfo = MOCK_MENTOR_INFO[meeting.mentorId];
+function MeetingCard({
+  meeting,
+  mentor,
+}: {
+  meeting: Meeting;
+  mentor: Mentor;
+}) {
   const isPast = new Date(meeting.scheduledDate) < new Date();
 
   const getStatusBadgeVariant = (status: string) => {
@@ -355,16 +383,19 @@ function MeetingCard({ meeting }: { meeting: Meeting }) {
     <Card hover>
       <CardContent>
         <div className="flex items-start gap-4">
-          <Avatar size="lg" fallback={mentorInfo.name} src={mentorInfo.photo} />
+          <Avatar
+            size="lg"
+            fallback={mentor.firstName + " " + mentor.lastName}
+          />
 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                  {mentorInfo.name}
+                  {mentor.firstName} {mentor.lastName}
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  {mentorInfo.title} at {mentorInfo.company}
+                  {mentor.title} at {mentor.company}
                 </p>
               </div>
               <Badge variant={getStatusBadgeVariant(meeting.status)}>
