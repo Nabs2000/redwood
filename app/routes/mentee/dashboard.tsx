@@ -65,7 +65,7 @@ export default function MenteeDashboard() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [meetings, setMeetings] = useState<Meeting[]>([]);
-  const [mentors, setMentors] = useState<Mentor[]>([]);
+  const [mentorObject, setMentorObject] = useState<Record<string, Mentor>>({});
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -106,15 +106,16 @@ export default function MenteeDashboard() {
           setMeetings(meetingsData);
 
           // Fetch mentors data
+          if (meetingsData.length === 0) return;
           meetingsData.map(async (meeting) => {
             const mentorDocRef = doc(db, "mentors", meeting.mentorId);
             const mentorDoc = await getDoc(mentorDocRef);
             if (mentorDoc.exists()) {
               const mentorData = mentorDoc.data() as Mentor;
-              setMentors((prev) => [
+              setMentorObject((prev) => ({
                 ...prev,
-                { id: mentorDoc.id, ...(mentorData as Omit<Mentor, "id">) },
-              ]);
+                [meeting.mentorId]: mentorData,
+              }));
             }
           });
 
@@ -129,6 +130,11 @@ export default function MenteeDashboard() {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    console.log("Meetings data:", meetings);
+    console.log("Mentor object:", mentorObject);
+  }, [meetings, mentorObject]);
 
   const upcomingMeetings = meetings
     .filter(
@@ -283,14 +289,18 @@ export default function MenteeDashboard() {
         </div>
 
         {/* Pending Meetings */}
-        {pendingMeetings.length > 0 && (
+        {pendingMeetings.length > 0 && mentorObject && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
               Pending Approval
             </h2>
             <div className="space-y-4">
               {pendingMeetings.map((meeting) => (
-                <MeetingCard key={meeting.id} meeting={meeting} />
+                <MeetingCard
+                  key={meeting.id}
+                  meeting={meeting}
+                  mentorObject={mentorObject}
+                />
               ))}
             </div>
           </div>
@@ -301,7 +311,7 @@ export default function MenteeDashboard() {
           <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
             Upcoming Meetings
           </h2>
-          {upcomingMeetings.length === 0 ? (
+          {upcomingMeetings.length === 0 || !mentorObject ? (
             <Card>
               <CardContent className="text-center py-12">
                 <svg
@@ -331,21 +341,29 @@ export default function MenteeDashboard() {
           ) : (
             <div className="space-y-4">
               {upcomingMeetings.map((meeting) => (
-                <MeetingCard key={meeting.id} meeting={meeting} />
+                <MeetingCard
+                  key={meeting.id}
+                  meeting={meeting}
+                  mentorObject={mentorObject}
+                />
               ))}
             </div>
           )}
         </div>
 
         {/* Past Meetings */}
-        {pastMeetings.length > 0 && (
+        {pastMeetings.length > 0 && mentorObject && (
           <div>
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
               Past Meetings
             </h2>
             <div className="space-y-4">
               {pastMeetings.map((meeting) => (
-                <MeetingCard key={meeting.id} meeting={meeting} />
+                <MeetingCard
+                  key={meeting.id}
+                  meeting={meeting}
+                  mentorObject={mentorObject}
+                />
               ))}
             </div>
           </div>
@@ -357,11 +375,12 @@ export default function MenteeDashboard() {
 
 function MeetingCard({
   meeting,
-  mentor,
+  mentorObject,
 }: {
   meeting: Meeting;
-  mentor: Mentor;
+  mentorObject: Record<string, Mentor>;
 }) {
+  const mentor = mentorObject[meeting.mentorId];
   const isPast = new Date(meeting.scheduledDate) < new Date();
 
   const getStatusBadgeVariant = (status: string) => {
