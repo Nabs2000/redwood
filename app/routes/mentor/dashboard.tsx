@@ -379,6 +379,12 @@ function MentorMeetingCard({
 }: MentorMeetingCardProps) {
   const menteeInfo = menteeData[meeting.menteeId];
   console.log("Rendering meeting card for mentee:", menteeInfo);
+
+  // Don't render if mentee data hasn't loaded yet
+  if (!menteeInfo) {
+    return null;
+  }
+
   const isPending = meeting.status === "pending";
 
   const getStatusBadgeVariant = (status: string) => {
