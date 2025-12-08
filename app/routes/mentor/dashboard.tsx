@@ -5,72 +5,18 @@ import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 import { Avatar } from "~/components/ui/Avatar";
 import { Badge } from "~/components/ui/Badge";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, doc, getDocs, query } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { db } from "~/firebase";
 import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
+import { type Mentee } from "~/types/mentee.types";
 import { ServiceTypeLabels } from "~/types/mentor.types";
-
-// TODO: Replace with actual data from Firebase
-const MOCK_MEETINGS: Meeting[] = [
-  {
-    id: "1",
-    mentorId: "current-mentor",
-    menteeId: "1",
-    type: "initial-consultation",
-    scheduledDate: new Date(2025, 10, 25),
-    scheduledTime: "14:00",
-    durationMinutes: 30,
-    status: "pending",
-    menteeNotes:
-      "Looking to break into software engineering. Would love to learn about your career path.",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "2",
-    mentorId: "current-mentor",
-    menteeId: "2",
-    type: "resume-review",
-    scheduledDate: new Date(2025, 10, 27),
-    scheduledTime: "16:00",
-    durationMinutes: 30,
-    status: "confirmed",
-    meetingLink: "https://meet.google.com/xyz-abcd-efg",
-    menteeNotes: "Need feedback on my resume for senior engineer positions",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "3",
-    mentorId: "current-mentor",
-    menteeId: "3",
-    type: "mock-interview",
-    scheduledDate: new Date(2025, 10, 30),
-    scheduledTime: "18:00",
-    durationMinutes: 60,
-    status: "confirmed",
-    meetingLink: "https://meet.google.com/mock-interview-123",
-    menteeNotes: "Preparing for technical interviews at FAANG companies",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
-// Mock mentee data for display
-const MOCK_MENTEE_INFO: Record<
-  string,
-  { name: string; role?: string; photo?: string }
-> = {
-  "1": { name: "Sarah Ahmed", role: "Computer Science Student" },
-  "2": { name: "Omar Khan", role: "Mid-level Software Engineer" },
-  "3": { name: "Aisha Patel", role: "Junior Developer" },
-};
 
 const auth = getAuth();
 
 export default function MentorDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [menteeData, setMenteeData] = useState<Record<string, Mentee>>({});
   const navigate = useNavigate();
   const auth = getAuth();
 
@@ -83,16 +29,32 @@ export default function MentorDashboard() {
         // Load data only after confirming user is authenticated
         try {
           const querySnap = await getDocs(collection(db, "meetings"));
-          if (!querySnap.empty) {
+          if (querySnap.empty) {
             console.log("No such collection!");
             return;
           }
-          const data = querySnap.docs.map((doc) => ({
+          const meetings = querySnap.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
           })) as Meeting[];
-          setMeetings(data.filter((m) => m.mentorId === uid));
-          console.log("Loaded mentee data:", data);
+          setMeetings(meetings.filter((m) => m.mentorId === uid));
+          console.log("Loaded mentee data:", meetings);
+
+          // Now obtain mentee details
+          const menteeIds = Array.from(
+            new Set(meetings.map((m) => m.menteeId))
+          );
+          const menteeData: Record<string, Mentee> = {};
+          for (const menteeId of menteeIds) {
+            const menteeDoc = await getDoc(doc(db, "mentees", menteeId));
+            if (!menteeDoc.exists()) {
+              console.log(`No data for mentee ID: ${menteeId}`);
+              continue;
+            }
+            menteeData[menteeId] = menteeDoc.data() as Mentee;
+          }
+          setMenteeData(menteeData);
+          console.log("Loaded mentee details:", menteeData);
         } catch (error) {
           console.error("Error loading mentee data:", error);
         }
@@ -309,7 +271,7 @@ export default function MentorDashboard() {
         </div>
 
         {/* Pending Requests */}
-        {pendingMeetings.length > 0 && (
+        {pendingMeetings.length > 0 && menteeData && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
@@ -324,6 +286,7 @@ export default function MentorDashboard() {
                 <MentorMeetingCard
                   key={meeting.id}
                   meeting={meeting}
+                  menteeData={menteeData}
                   onApprove={handleApproveMeeting}
                   onDecline={handleDeclineMeeting}
                 />
@@ -337,7 +300,7 @@ export default function MentorDashboard() {
           <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
             Upcoming Sessions
           </h2>
-          {upcomingMeetings.length === 0 ? (
+          {upcomingMeetings.length === 0 || !menteeData ? (
             <Card>
               <CardContent className="text-center py-12">
                 <svg
@@ -364,21 +327,29 @@ export default function MentorDashboard() {
           ) : (
             <div className="space-y-4">
               {upcomingMeetings.map((meeting) => (
-                <MentorMeetingCard key={meeting.id} meeting={meeting} />
+                <MentorMeetingCard
+                  key={meeting.id}
+                  meeting={meeting}
+                  menteeData={menteeData}
+                />
               ))}
             </div>
           )}
         </div>
 
         {/* Past Meetings */}
-        {pastMeetings.length > 0 && (
+        {pastMeetings.length > 0 && menteeData && (
           <div>
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
               Past Sessions
             </h2>
             <div className="space-y-4">
               {pastMeetings.slice(0, 5).map((meeting) => (
-                <MentorMeetingCard key={meeting.id} meeting={meeting} />
+                <MentorMeetingCard
+                  key={meeting.id}
+                  meeting={meeting}
+                  menteeData={menteeData}
+                />
               ))}
             </div>
             {pastMeetings.length > 5 && (
@@ -395,16 +366,19 @@ export default function MentorDashboard() {
 
 interface MentorMeetingCardProps {
   meeting: Meeting;
+  menteeData: Record<string, Mentee>;
   onApprove?: (meetingId: string) => void;
   onDecline?: (meetingId: string) => void;
 }
 
 function MentorMeetingCard({
   meeting,
+  menteeData,
   onApprove,
   onDecline,
 }: MentorMeetingCardProps) {
-  const menteeInfo = MOCK_MENTEE_INFO[meeting.menteeId];
+  const menteeInfo = menteeData[meeting.menteeId];
+  console.log("Rendering meeting card for mentee:", menteeInfo);
   const isPending = meeting.status === "pending";
 
   const getStatusBadgeVariant = (status: string) => {
@@ -426,17 +400,20 @@ function MentorMeetingCard({
     <Card hover>
       <CardContent>
         <div className="flex items-start gap-4">
-          <Avatar size="lg" fallback={menteeInfo.name} src={menteeInfo.photo} />
+          <Avatar
+            size="lg"
+            fallback={menteeInfo.firstName + " " + menteeInfo.lastName}
+          />
 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                  {menteeInfo.name}
+                  {menteeInfo.firstName} {menteeInfo.lastName}
                 </h3>
-                {menteeInfo.role && (
+                {menteeInfo.currentRole && (
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {menteeInfo.role}
+                    {menteeInfo.currentRole}
                   </p>
                 )}
               </div>
