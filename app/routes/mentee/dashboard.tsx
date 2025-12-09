@@ -356,9 +356,6 @@ export default function MenteeDashboard() {
                 <p className="text-slate-600 dark:text-slate-400 mb-4">
                   Connect with a mentor to schedule your first session
                 </p>
-                <Link to="/mentee/browse-mentors">
-                  <Button>Browse Mentors</Button>
-                </Link>
               </CardContent>
             </Card>
           ) : (
