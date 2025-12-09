@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
+import { MdLogout } from "react-icons/md";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { db } from "~/firebase";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
@@ -208,7 +209,8 @@ export default function MenteeDashboard() {
                 className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md"
                 onClick={handleLogout}
               >
-                Logout
+                <MdLogout />
+                <span className="ml-2">Logout</span>
               </Button>
             </div>
           </div>
