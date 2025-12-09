@@ -381,6 +381,7 @@ function MeetingCard({
   mentorObject: Record<string, Mentor>;
 }) {
   const mentor = mentorObject[meeting.mentorId];
+  if (!mentor) return null;
   const isPast = new Date(meeting.scheduledDate) < new Date();
 
   const getStatusBadgeVariant = (status: string) => {
