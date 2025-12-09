@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { MdLogout } from "react-icons/md";
 import { Button } from "~/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 import { Avatar } from "~/components/ui/Avatar";
@@ -169,8 +170,12 @@ export default function MentorDashboard() {
                 Edit Profile
               </Button>
             </Link>
-            <Button variant="outline" onClick={handleLogout}>
-              Logout
+            <Button
+              className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md"
+              onClick={handleLogout}
+            >
+              <MdLogout />
+              <span className="ml-2">Logout</span>
             </Button>
           </div>
         </div>
