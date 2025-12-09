@@ -1,6 +1,6 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { db } from "~/firebase";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { Button } from "~/components/ui/Button";
@@ -66,6 +66,7 @@ export default function MenteeDashboard() {
   const [lastName, setLastName] = useState("");
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [mentorObject, setMentorObject] = useState<Record<string, Mentor>>({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -158,6 +159,18 @@ export default function MenteeDashboard() {
         new Date(a.scheduledDate).getTime()
     );
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log("User signed out successfully");
+      navigate("/register");
+      // Sign-out successful.
+    } catch (error) {
+      // An error happened
+      console.error("Error signing out:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
@@ -172,24 +185,32 @@ export default function MenteeDashboard() {
                 Track your mentorship journey
               </p>
             </div>
-            <Link to="/mentee/browse-mentors">
-              <Button>
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Find Mentors
+            <div className="flex items-center justify-end gap-4">
+              <Link to="/mentee/browse-mentors">
+                <Button>
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Find Mentors
+                </Button>
+              </Link>
+              <Button
+                className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md"
+                onClick={handleLogout}
+              >
+                Logout
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
       </div>
