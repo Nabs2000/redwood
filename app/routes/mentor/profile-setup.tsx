@@ -167,7 +167,7 @@ export default function MentorProfileSetup() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             {[1, 2, 3].map((s) => (
-              <div key={s} className="flex items-center flex-1">
+              <div key={s} className="flex items-center justify-between">
                 <div
                   className={`
                     w-10 h-10 rounded-full flex items-center justify-center font-semibold
