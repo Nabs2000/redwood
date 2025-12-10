@@ -38,6 +38,7 @@ export default function MentorProfileSetup() {
         setProfile({
           title: data.title || "",
           bio: data.bio || "",
+          company: data.company || "",
           industry: data.industry || "",
           specialties: data.specialties || [],
           yearsOfExperience: data.yearsOfExperience || 0,
@@ -66,6 +67,7 @@ export default function MentorProfileSetup() {
   const [profile, setProfile] = useState({
     title: "",
     bio: "",
+    company: "",
     industry: "",
     specialties: [] as string[],
     yearsOfExperience: 0,
@@ -210,6 +212,15 @@ export default function MentorProfileSetup() {
             {/* Step 1: Profile Information */}
             {step === 1 && (
               <div className="space-y-4">
+                <Input
+                  label="Company"
+                  placeholder="e.g., Acme Corp"
+                  value={profile.company}
+                  onChange={(e) =>
+                    setProfile({ ...profile, company: e.target.value })
+                  }
+                  required
+                />
                 <Input
                   label="Professional Title"
                   placeholder="e.g., Senior Software Engineer"
