@@ -6,7 +6,7 @@ import { Textarea } from "~/components/ui/Textarea";
 import { Select } from "~/components/ui/Select";
 import { db } from "~/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 import {
   type WeeklyAvailability,
@@ -26,6 +26,39 @@ export default function MentorProfileSetup() {
         navigate("/login");
       }
     });
+
+    // Load existing profile data if available
+    if (!auth.currentUser) return;
+    const mentor_id = auth.currentUser.uid;
+    const loadProfile = async () => {
+      const docRef = doc(db, "mentors", mentor_id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setProfile({
+          title: data.title || "",
+          bio: data.bio || "",
+          industry: data.industry || "",
+          specialties: data.specialties || [],
+          yearsOfExperience: data.yearsOfExperience || 0,
+          linkedInUrl: data.linkedInUrl || "",
+        });
+        setAvailability(
+          data.availability || {
+            monday: [],
+            tuesday: [],
+            wednesday: [],
+            thursday: [],
+            friday: [],
+            saturday: [],
+            sunday: [],
+          }
+        );
+        setServices(data.services || ["initial-consultation"]);
+        return data;
+      }
+    };
+    loadProfile();
     return () => unsubscribe();
   }, [auth, navigate]);
 
