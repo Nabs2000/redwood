@@ -30,16 +30,15 @@ export default function MentorDashboard() {
         // Load data only after confirming user is authenticated
         try {
           const querySnap = await getDocs(collection(db, "meetings"));
-          if (querySnap.empty) {
-            console.log("No such collection!");
-            return;
-          }
-          const meetings = querySnap.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          })) as Meeting[];
-          setMeetings(meetings.filter((m) => m.mentorId === uid));
-          console.log("Loaded mentee data:", meetings);
+          const meetings = querySnap.empty
+            ? []
+            : (querySnap.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              })) as Meeting[]);
+          const userMeetings = meetings.filter((m) => m.mentorId === uid);
+          setMeetings(userMeetings);
+          console.log("Loaded meetings for user:", userMeetings);
 
           // Now obtain mentee details
           const menteeIds = Array.from(
