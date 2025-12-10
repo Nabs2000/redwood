@@ -13,8 +13,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/Card";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Create Account - Mozlem Mentorz" },
-    { name: "description", content: "Join the Mozlem Mentorz community" },
+    { title: "Create Account - Redwood" },
+    { name: "description", content: "Join the Redwood community" },
   ];
 }
 
@@ -183,7 +183,7 @@ export default function Register() {
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                Mozlem Mentorz
+                Redwood
               </h1>
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 Community Career Guidance
