@@ -44,6 +44,7 @@ export default function Register() {
       const provider = new GoogleAuthProvider();
       provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
       provider.addScope("https://www.googleapis.com/auth/userinfo.email");
+      provider.addScope("https://www.googleapis.com/auth/calendar.readonly");
 
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
