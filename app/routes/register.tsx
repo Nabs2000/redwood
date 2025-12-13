@@ -49,6 +49,22 @@ export default function Register() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
+      // Get the Google access token from the credential
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const accessToken = credential?.accessToken;
+
+      // Store the access token in Firestore for later use
+      if (accessToken) {
+        await setDoc(
+          doc(db, "user_tokens", user.uid),
+          {
+            googleAccessToken: accessToken,
+            updatedAt: new Date(),
+          },
+          { merge: true }
+        );
+      }
+
       // Pre-fill name from Google account
       if (user.displayName) {
         const names = user.displayName.split(" ");
