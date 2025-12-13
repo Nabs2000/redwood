@@ -11,7 +11,6 @@ import { db } from "~/firebase";
 import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
 import { type Mentee } from "~/types/mentee.types";
 import { ServiceTypeLabels } from "~/types/mentor.types";
-
 const auth = getAuth();
 
 export default function MentorDashboard() {
@@ -29,6 +28,16 @@ export default function MentorDashboard() {
 
         // Load data only after confirming user is authenticated
         try {
+          // Fetch calendar list from Google Calendar API
+          const calendarResponse = await fetch(`/api/calendar?uid=${uid}`);
+          if (calendarResponse.ok) {
+            const calendarData = await calendarResponse.json();
+            console.log("Calendar List:", calendarData.calendars);
+          } else {
+            const error = await calendarResponse.json();
+            console.error("Failed to fetch calendars:", error);
+          }
+
           const querySnap = await getDocs(collection(db, "meetings"));
           const meetings = querySnap.empty
             ? []
@@ -120,6 +129,29 @@ export default function MentorDashboard() {
           : m
       )
     );
+
+    let event;
+    const meeting = meetings.find((m) => m.id === meetingId);
+    if (!meeting) return;
+    console.log("Creating calendar event for meeting:", meeting);
+    // event = {
+
+    // calendar.events.insert(
+    //   {
+    //     auth: auth,
+    //     calendarId: "primary",
+    //     resource: event,
+    //   },
+    //   function (err, event) {
+    //     if (err) {
+    //       console.log(
+    //         "There was an error contacting the Calendar service: " + err
+    //       );
+    //       return;
+    //     }
+    //     console.log("Event created: %s", event.htmlLink);
+    //   }
+    // );
   };
 
   const handleDeclineMeeting = async (meetingId: string) => {
