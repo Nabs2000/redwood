@@ -13,8 +13,14 @@ export default [
 
   // Mentee Routes
   route("mentee/browse-mentors", "routes/mentee/browse-mentors.tsx"),
-  route("mentee/book-meeting/:mentorId", "routes/mentee/book-meeting.$mentorId.tsx"),
-  route("mentee/request-service/:mentorId", "routes/mentee/request-service.$mentorId.tsx"),
+  route(
+    "mentee/book-meeting/:mentorId",
+    "routes/mentee/book-meeting.$mentorId.tsx"
+  ),
+  route(
+    "mentee/request-service/:mentorId",
+    "routes/mentee/request-service.$mentorId.tsx"
+  ),
   route("mentee/dashboard", "routes/mentee/dashboard.tsx"),
 
   // Legacy routes (to be migrated)
