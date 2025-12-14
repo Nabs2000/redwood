@@ -11,6 +11,7 @@ import { db } from "~/firebase";
 import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
 import { type Mentee } from "~/types/mentee.types";
 import { ServiceTypeLabels } from "~/types/mentor.types";
+
 const auth = getAuth();
 
 export default function MentorDashboard() {
@@ -25,7 +26,9 @@ export default function MentorDashboard() {
       if (user) {
         const uid = user.uid;
         console.log("User is signed in with UID:", uid);
-
+        const response = await fetch("/api/calendar?uid=" + uid);
+        const calendarData = await response.json();
+        console.log("Fetched calendar data:", calendarData);
         // Load data only after confirming user is authenticated
         try {
           const querySnap = await getDocs(collection(db, "meetings"));
