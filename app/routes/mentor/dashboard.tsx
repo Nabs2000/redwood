@@ -28,16 +28,6 @@ export default function MentorDashboard() {
 
         // Load data only after confirming user is authenticated
         try {
-          // Fetch calendar list from Google Calendar API
-          const calendarResponse = await fetch(`/api/calendar?uid=${uid}`);
-          if (calendarResponse.ok) {
-            const calendarData = await calendarResponse.json();
-            console.log("Calendar List:", calendarData.calendars);
-          } else {
-            const error = await calendarResponse.json();
-            console.error("Failed to fetch calendars:", error);
-          }
-
           const querySnap = await getDocs(collection(db, "meetings"));
           const meetings = querySnap.empty
             ? []
