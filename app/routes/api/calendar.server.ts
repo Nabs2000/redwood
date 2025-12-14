@@ -10,5 +10,5 @@ export const getCalendar = async (accessToken: string) => {
     auth: oauth2Client,
   });
 
-  return calendar;
+  return calendar.calendarList.list();
 };
