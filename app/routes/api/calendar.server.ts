@@ -1,6 +1,6 @@
 import { google } from "googleapis";
 
-export const getCalendarList = async (accessToken: string) => {
+export const getCalendar = async (accessToken: string) => {
   // Create an OAuth2 client with the access token
   const oauth2Client = new google.auth.OAuth2();
   oauth2Client.setCredentials({ access_token: accessToken });
@@ -10,5 +10,5 @@ export const getCalendarList = async (accessToken: string) => {
     auth: oauth2Client,
   });
 
-  return calendar.calendarList.list();
+  return calendar;
 };
