@@ -7,6 +7,9 @@ export default [
   // Authentication
   route("register", "routes/register.tsx"),
 
+  // API Routes
+  route("api/calendar", "routes/api/calendar.ts"),
+
   // Mentor Routes
   route("mentor/profile-setup", "routes/mentor/profile-setup.tsx"),
   route("mentor/dashboard", "routes/mentor/dashboard.tsx"),
@@ -22,8 +25,4 @@ export default [
     "routes/mentee/request-service.$mentorId.tsx"
   ),
   route("mentee/dashboard", "routes/mentee/dashboard.tsx"),
-
-  // Legacy routes (to be migrated)
-  route("professional/:professionalId", "routes/professionalPage.tsx"),
-  route("client/:clientId", "routes/clientPage.tsx"),
 ] satisfies RouteConfig;
