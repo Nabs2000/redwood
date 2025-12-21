@@ -8,7 +8,7 @@ export default [
   route("register", "routes/register.tsx"),
 
   // API Routes
-  route("api/calendar", "routes/api/calendar.ts"),
+  route("api/get-calendars", "routes/api/get-calendars.ts"),
   route("api/create-meeting", "routes/api/create-meeting.ts"),
 
   // Mentor Routes

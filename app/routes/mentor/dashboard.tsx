@@ -11,11 +11,13 @@ import { db } from "~/firebase";
 import { type Meeting, MeetingStatusLabels } from "~/types/meeting.types";
 import { type Mentee } from "~/types/mentee.types";
 import { ServiceTypeLabels } from "~/types/mentor.types";
+import { toast } from "sonner";
 
 const auth = getAuth();
 
 export default function MentorDashboard() {
   const [isLoading, setIsLoading] = useState(false);
+  const [mentorCalendar, setMentorCalendar] = useState<string | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [menteeData, setMenteeData] = useState<Record<string, Mentee>>({});
   const navigate = useNavigate();
@@ -25,10 +27,11 @@ export default function MentorDashboard() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const uid = user.uid;
-        console.log("User is signed in with UID:", uid);
-        const response = await fetch("/api/calendar?uid=" + uid);
+        const response = await fetch("/api/get-calendars?uid=" + uid);
         const calendarData = await response.json();
-        console.log("Fetched calendar data:", calendarData);
+        if (calendarData.calendars.items) {
+          setMentorCalendar(calendarData.calendars.items[0]);
+        }
         // Load data only after confirming user is authenticated
         try {
           const querySnap = await getDocs(collection(db, "meetings"));
@@ -40,7 +43,6 @@ export default function MentorDashboard() {
               })) as Meeting[]);
           const userMeetings = meetings.filter((m) => m.mentorId === uid);
           setMeetings(userMeetings);
-          console.log("Loaded meetings for user:", userMeetings);
 
           // Now obtain mentee details
           const menteeIds = Array.from(
@@ -50,18 +52,16 @@ export default function MentorDashboard() {
           for (const menteeId of menteeIds) {
             const menteeDoc = await getDoc(doc(db, "mentees", menteeId));
             if (!menteeDoc.exists()) {
-              console.log(`No data for mentee ID: ${menteeId}`);
               continue;
             }
             menteeData[menteeId] = menteeDoc.data() as Mentee;
           }
           setMenteeData(menteeData);
-          console.log("Loaded mentee details:", menteeData);
         } catch (error) {
           console.error("Error loading mentee data:", error);
         }
       } else {
-        console.log("User is signed out");
+        navigate("/register");
       }
     });
 
@@ -76,7 +76,6 @@ export default function MentorDashboard() {
   async function handleLogout() {
     try {
       await signOut(auth);
-      console.log("User signed out successfully");
       navigate("/register");
       // Sign-out successful.
     } catch (error) {
@@ -110,41 +109,40 @@ export default function MentorDashboard() {
     );
 
   const handleApproveMeeting = async (meetingId: string) => {
-    // TODO: Update meeting status in Firebase
-    setMeetings(
-      meetings.map((m) =>
-        m.id === meetingId
-          ? {
-              ...m,
-              status: "confirmed",
-              meetingLink: "https://meet.google.com/generated-link",
-            }
-          : m
-      )
-    );
-
-    let event;
     const meeting = meetings.find((m) => m.id === meetingId);
     if (!meeting) return;
-    console.log("Creating calendar event for meeting:", meeting);
-    // event = {
+    if (!mentorCalendar) {
+      console.error("No calendar ID available");
+      toast.error("Calendar not available");
+      return;
+    }
+    try {
+      const response = await fetch(
+        "/api/create-meeting?uid=" + meeting.mentorId,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            mentorCalendar,
+            meeting,
+          }),
+        }
+      );
 
-    // calendar.events.insert(
-    //   {
-    //     auth: auth,
-    //     calendarId: "primary",
-    //     resource: event,
-    //   },
-    //   function (err, event) {
-    //     if (err) {
-    //       console.log(
-    //         "There was an error contacting the Calendar service: " + err
-    //       );
-    //       return;
-    //     }
-    //     console.log("Event created: %s", event.htmlLink);
-    //   }
-    // );
+      if (!response.ok) {
+        console.error("Failed to create calendar event");
+        toast.error("Failed to create meeting");
+        return;
+      }
+
+      const data = await response.json();
+      toast.success("Meeting created successfully! 🎉");
+    } catch (error) {
+      console.error("Error creating calendar event:", error);
+      toast.error("An error occurred while creating the meeting");
+    }
   };
 
   const handleDeclineMeeting = async (meetingId: string) => {
@@ -409,7 +407,6 @@ function MentorMeetingCard({
   onDecline,
 }: MentorMeetingCardProps) {
   const menteeInfo = menteeData[meeting.menteeId];
-  console.log("Rendering meeting card for mentee:", menteeInfo);
 
   // Don't render if mentee data hasn't loaded yet
   if (!menteeInfo) {
